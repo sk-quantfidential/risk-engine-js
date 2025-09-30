@@ -50,7 +50,17 @@ export function DrawdownLTVChart({ loan, currentPrice, marketDataService }: Draw
       <h2 className="panel-header">LTV TIMELINE WITH MARGIN BANDS</h2>
 
       {/* Current Status */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-5 gap-4 mb-6">
+        <div className="metric-card">
+          <div className="metric-label">Collateral Value</div>
+          <div className="metric-value text-primary">
+            ${(currentCollateralValue / 1_000_000).toFixed(2)}M
+          </div>
+          <div className="text-xs text-text-muted font-mono mt-1">
+            {loan.collateral.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} {loan.collateral.type}
+          </div>
+        </div>
+
         <div className="metric-card">
           <div className="metric-label">Current LTV</div>
           <div className={`metric-value ${

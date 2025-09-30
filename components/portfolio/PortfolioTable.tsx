@@ -54,8 +54,7 @@ export function PortfolioTable({ loans, prices }: PortfolioTableProps) {
             <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Borrower</th>
             <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Rating</th>
             <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">Principal</th>
-            <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Collateral</th>
-            <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">Value</th>
+            <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Collateral (USD)</th>
             <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">LTV</th>
             <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Status</th>
             <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">Exp. Loss</th>
@@ -86,15 +85,12 @@ export function PortfolioTable({ loans, prices }: PortfolioTableProps) {
                 {formatMoney(loan.terms.principalUSD)}
               </td>
               <td className="py-3 px-2">
-                <div className="text-text-primary">
-                  {loan.collateral.amount.toLocaleString()} {loan.collateral.type}
+                <div className="text-text-primary font-bold">
+                  {formatMoney(collateralValue)}
                 </div>
                 <div className="text-xs text-text-muted">
-                  @ {formatMoney(prices[loan.collateral.type])}
+                  {loan.collateral.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} {loan.collateral.type}
                 </div>
-              </td>
-              <td className="py-3 px-2 text-right text-text-primary">
-                {formatMoney(collateralValue)}
               </td>
               <td className="py-3 px-2 text-right">
                 <span className={`font-bold ${

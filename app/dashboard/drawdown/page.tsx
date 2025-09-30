@@ -58,17 +58,22 @@ export default function DrawdownPage() {
                 <div className="text-sm font-mono font-bold text-text-primary truncate">
                   {loan.borrowerName}
                 </div>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs font-mono text-text-secondary">
-                    {loan.collateral.type}
-                  </span>
-                  <span className={`text-xs font-mono font-bold ${
-                    metrics.marginStatus === 'healthy' ? 'text-primary' :
-                    metrics.marginStatus === 'warning' ? 'text-warning' :
-                    'text-danger'
-                  }`}>
-                    {(metrics.loanToValue * 100).toFixed(1)}%
-                  </span>
+                <div className="mt-2">
+                  <div className="text-xs font-mono text-text-secondary mb-1">
+                    {loan.collateral.type}: ${(collateralValue / 1_000_000).toFixed(2)}M
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono text-text-muted">
+                      LTV:
+                    </span>
+                    <span className={`text-xs font-mono font-bold ${
+                      metrics.marginStatus === 'healthy' ? 'text-primary' :
+                      metrics.marginStatus === 'warning' ? 'text-warning' :
+                      'text-danger'
+                    }`}>
+                      {(metrics.loanToValue * 100).toFixed(1)}%
+                    </span>
+                  </div>
                 </div>
               </button>
             );
