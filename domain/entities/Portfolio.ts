@@ -112,7 +112,7 @@ export class Portfolio {
     };
 
     loanMetrics.forEach(item => {
-      const assetType = item.loan.collateral.type;
+      const assetType = item.loan.collateral.type as AssetType;
       concentration[assetType] += (item.collateralValue / totalCollateralValue) * 100;
     });
 
