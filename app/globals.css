@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-text-primary antialiased font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-mono font-bold;
+  }
+
+  /* Custom scrollbar - military theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border-light rounded;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-dark;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-background-secondary border border-border rounded-lg p-6 shadow-lg;
+  }
+
+  .panel-header {
+    @apply text-lg font-mono font-bold text-primary mb-4 uppercase tracking-wide;
+  }
+
+  .metric-card {
+    @apply bg-background-tertiary border border-border-light rounded p-4;
+  }
+
+  .metric-label {
+    @apply text-text-secondary text-sm font-mono uppercase tracking-wider mb-1;
+  }
+
+  .metric-value {
+    @apply text-2xl font-mono font-bold;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-background font-mono font-bold px-4 py-2 rounded hover:bg-primary-light transition-colors;
+  }
+
+  .btn-danger {
+    @apply bg-danger text-white font-mono font-bold px-4 py-2 rounded hover:bg-danger-light transition-colors;
+  }
+
+  .status-indicator {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+
+  .status-healthy {
+    @apply bg-primary animate-pulse;
+  }
+
+  .status-warning {
+    @apply bg-warning animate-pulse;
+  }
+
+  .status-critical {
+    @apply bg-danger animate-pulse;
+  }
+}
