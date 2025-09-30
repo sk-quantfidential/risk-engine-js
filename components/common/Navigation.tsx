@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 interface NavItem {
   href: string;
@@ -21,6 +22,19 @@ const navItems: NavItem[] = [
 
 export function Navigation() {
   const pathname = usePathname();
+  const [currentTime, setCurrentTime] = useState<string>('--:--:--');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setCurrentTime(new Date().toLocaleTimeString('en-US', { hour12: false }));
+
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString('en-US', { hour12: false }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <nav className="bg-background-secondary border-b border-border">
@@ -29,7 +43,7 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center space-x-3">
             <div className="text-2xl font-mono font-bold text-primary">
-              RISK ENGINE
+              COR PRIME RISK ENGINE
             </div>
             <div className="text-xs text-text-muted font-mono mt-1">
               v1.0 | LIVE
@@ -65,9 +79,11 @@ export function Navigation() {
               <span className="status-indicator status-healthy"></span>
               <span className="text-xs font-mono text-text-secondary">SYSTEM ONLINE</span>
             </div>
-            <div className="text-xs font-mono text-text-muted">
-              {new Date().toLocaleTimeString('en-US', { hour12: false })}
-            </div>
+            {mounted && (
+              <div className="text-xs font-mono text-text-muted">
+                {currentTime}
+              </div>
+            )}
           </div>
         </div>
       </div>

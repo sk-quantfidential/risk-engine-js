@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Risk Engine - Crypto Loan Portfolio Management',
-  description: 'World-class crypto loan risk management and portfolio optimization',
+  title: 'Cor Prime Risk Engine - Crypto Loan Portfolio Management',
+  description: 'World-class crypto loan risk management and portfolio optimization platform',
 };
 
 export default function RootLayout({

@@ -127,15 +127,22 @@
 - [ ] Tail risk analysis (EVT)
 - [ ] Backtesting framework with P&L attribution
 
-### Phase 8: Data Integration
-- [ ] Replace synthetic data with real OHLCV CSV
+### Phase 8: Data Integration ✅
+- [x] Coinbase API importer (4 years hourly OHLCV)
+- [x] CSV import/export functionality
+- [x] Real-time price data from Coinbase
+- [x] Automatic current price detection from latest candle
+- [x] Progress tracking for API imports
 - [ ] Historical SOFR rate integration
 - [ ] Real-time WebSocket price feeds
-- [ ] API integration for live market data
 - [ ] Database persistence (PostgreSQL)
 
-### Phase 9: Advanced Features
-- [ ] Loan creation/editing UI
+### Phase 9: Advanced Features ✅ (Partially)
+- [x] Loan editing UI with validation
+- [x] Price editing UI for manual adjustments
+- [x] Professional sci-fi theme with British Racing Green
+- [x] Enhanced correlation heatmap with gradients
+- [ ] Loan creation UI (add new loans)
 - [ ] Custom scenario builder
 - [ ] Stress test scenario library expansion
 - [ ] Multi-portfolio management

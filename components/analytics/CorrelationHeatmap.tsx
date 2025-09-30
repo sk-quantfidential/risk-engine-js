@@ -18,17 +18,22 @@ export function CorrelationHeatmap({ btcEthCorr, btcSolCorr, ethSolCorr, default
     [defaultCorr, defaultCorr, defaultCorr, 1.00],
   ];
 
+  // Elegant gradient-based color scheme
   const getColor = (value: number): string => {
-    if (value === 1.00) return '#00ff88';  // Primary (diagonal)
-    if (value >= 0.80) return '#ff3366';   // Danger (high correlation)
-    if (value >= 0.60) return '#ffaa00';   // Warning (moderate-high)
-    if (value >= 0.40) return '#00ccff';   // Info (moderate)
-    return '#374151';                       // Border (low)
+    if (value === 1.00) return '#00b85c';  // British Racing Green (diagonal)
+
+    // Smooth gradient from low (blue-teal) to high (amber-coral)
+    if (value >= 0.85) return '#e07856';   // Warm coral
+    if (value >= 0.70) return '#f4a261';   // Warm amber
+    if (value >= 0.55) return '#9fb8ad';   // Sage green
+    if (value >= 0.40) return '#6ba3b8';   // Steel blue
+    if (value >= 0.25) return '#4e7d8f';   // Deep teal
+    return '#3a4a5a';                       // Charcoal (low)
   };
 
   const getTextColor = (value: number): string => {
-    if (value >= 0.50) return '#0a0f14';  // Dark text for light backgrounds
-    return '#e0e6ed';  // Light text for dark backgrounds
+    if (value >= 0.60 || value === 1.00) return '#1a1d23';  // Dark text for bright colors
+    return '#e8ecf0';  // Light text for dark colors
   };
 
   return (
@@ -63,15 +68,16 @@ export function CorrelationHeatmap({ btcEthCorr, btcSolCorr, ethSolCorr, default
               return (
                 <div
                   key={`${rowAsset}-${colAsset}`}
-                  className="flex-1 mx-1 rounded"
+                  className="flex-1 mx-1 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
                   style={{
                     backgroundColor: bgColor,
-                    padding: '12px',
+                    padding: '14px',
                     textAlign: 'center',
+                    boxShadow: rowIdx === colIdx ? '0 0 12px rgba(0, 184, 92, 0.3)' : 'none',
                   }}
                 >
                   <span
-                    className="font-mono font-bold text-sm"
+                    className="font-mono font-bold text-base"
                     style={{ color: textColor }}
                   >
                     {value.toFixed(2)}
@@ -83,27 +89,21 @@ export function CorrelationHeatmap({ btcEthCorr, btcSolCorr, ethSolCorr, default
         ))}
       </div>
 
-      {/* Legend */}
-      <div className="mt-4 grid grid-cols-5 gap-4 text-xs font-mono">
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 rounded" style={{ backgroundColor: '#00ff88' }}></div>
-          <span className="text-text-secondary">Perfect (1.00)</span>
+      {/* Elegant Legend */}
+      <div className="mt-6 flex items-center justify-between">
+        <div className="flex items-center space-x-1">
+          <span className="text-xs font-mono text-text-muted mr-2">LOW</span>
+          <div className="w-8 h-6 rounded" style={{ backgroundColor: '#3a4a5a' }}></div>
+          <div className="w-8 h-6 rounded" style={{ backgroundColor: '#4e7d8f' }}></div>
+          <div className="w-8 h-6 rounded" style={{ backgroundColor: '#6ba3b8' }}></div>
+          <div className="w-8 h-6 rounded" style={{ backgroundColor: '#9fb8ad' }}></div>
+          <div className="w-8 h-6 rounded" style={{ backgroundColor: '#f4a261' }}></div>
+          <div className="w-8 h-6 rounded" style={{ backgroundColor: '#e07856' }}></div>
+          <span className="text-xs font-mono text-text-muted ml-2">HIGH</span>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 rounded" style={{ backgroundColor: '#ff3366' }}></div>
-          <span className="text-text-secondary">High (&gt;0.80)</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 rounded" style={{ backgroundColor: '#ffaa00' }}></div>
-          <span className="text-text-secondary">Mod-High (0.60-0.80)</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 rounded" style={{ backgroundColor: '#00ccff' }}></div>
-          <span className="text-text-secondary">Moderate (0.40-0.60)</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 rounded" style={{ backgroundColor: '#374151' }}></div>
-          <span className="text-text-secondary">Low (&lt;0.40)</span>
+          <div className="w-6 h-6 rounded-lg" style={{ backgroundColor: '#00b85c', boxShadow: '0 0 10px rgba(0, 184, 92, 0.4)' }}></div>
+          <span className="text-xs font-mono text-text-secondary">Perfect Correlation</span>
         </div>
       </div>
     </div>

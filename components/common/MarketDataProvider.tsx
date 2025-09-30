@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { MarketDataService, MarketDataSnapshot } from '@/infrastructure/adapters/MarketDataService';
 import { Portfolio } from '@/domain/entities/Portfolio';
+import { Loan } from '@/domain/entities/Loan';
 import { LocalStorageRepository } from '@/infrastructure/persistence/LocalStorageRepository';
 import { SampleDataGenerator } from '@/infrastructure/adapters/SampleDataGenerator';
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
@@ -15,6 +16,9 @@ interface MarketDataContextValue {
   isLive: boolean;
   toggleLive: () => void;
   refreshPortfolio: () => void;
+  updateLoan: (updatedLoan: Loan) => void;
+  updatePrices: (newPrices: Record<AssetType, number>) => void;
+  reloadWithCSV: (csvData: Record<AssetType, string>) => void;
 }
 
 const MarketDataContext = createContext<MarketDataContextValue | null>(null);
@@ -101,6 +105,67 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
     }
   };
 
+  const updateLoan = (updatedLoan: Loan) => {
+    if (repositoryRef.current && portfolio) {
+      // Update loan in repository
+      repositoryRef.current.saveLoan(updatedLoan);
+
+      // Create new portfolio with updated loan
+      const updatedLoans = portfolio.loans.map(loan =>
+        loan.id === updatedLoan.id ? updatedLoan : loan
+      );
+      const updatedPortfolio = new Portfolio(updatedLoans, portfolio.riskCapitalUSD);
+
+      // Save and update state
+      repositoryRef.current.savePortfolio(updatedPortfolio);
+      setPortfolio(updatedPortfolio);
+    }
+  };
+
+  const updatePrices = (newPrices: Record<AssetType, number>) => {
+    // Update prices in market data service if the method exists
+    if (marketDataServiceRef.current) {
+      // Try to use setCurrentPrices if available, otherwise directly update
+      if (typeof marketDataServiceRef.current.setCurrentPrices === 'function') {
+        marketDataServiceRef.current.setCurrentPrices(newPrices);
+      } else {
+        // Fallback: directly update the private property (TypeScript will complain but it will work)
+        (marketDataServiceRef.current as any).currentPrices = { ...newPrices };
+      }
+    }
+
+    // Update market data snapshot
+    setMarketData({
+      timestamp: new Date(),
+      prices: newPrices,
+      returns: marketData?.returns || {
+        [AssetType.BTC]: 0,
+        [AssetType.ETH]: 0,
+        [AssetType.SOL]: 0,
+      },
+    });
+  };
+
+  const reloadWithCSV = (csvData: Record<AssetType, string>) => {
+    // Create new market data service with CSV data
+    marketDataServiceRef.current = new MarketDataService(csvData);
+
+    // Get new prices
+    const newPrices = marketDataServiceRef.current.getCurrentPrices();
+    setMarketData({
+      timestamp: new Date(),
+      prices: newPrices,
+      returns: {
+        [AssetType.BTC]: 0,
+        [AssetType.ETH]: 0,
+        [AssetType.SOL]: 0,
+      },
+    });
+
+    // Force re-render of portfolio with new prices
+    refreshPortfolio();
+  };
+
   const value: MarketDataContextValue = {
     marketData,
     portfolio,
@@ -109,6 +174,9 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
     isLive,
     toggleLive,
     refreshPortfolio,
+    updateLoan,
+    updatePrices,
+    reloadWithCSV,
   };
 
   return (

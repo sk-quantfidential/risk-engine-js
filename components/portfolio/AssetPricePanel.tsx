@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
+import { PriceEditModal } from './PriceEditModal';
+import { CSVImportModal } from './CSVImportModal';
+import { CoinbaseImportModal } from './CoinbaseImportModal';
+import { MarketDataService } from '@/infrastructure/adapters/MarketDataService';
+import { CSVExporter } from '@/infrastructure/adapters/CSVExporter';
 
 interface AssetPricePanelProps {
   prices: Record<AssetType, number>;
   returns: Record<AssetType, number>;
   isLive: boolean;
+  onPriceUpdate?: (newPrices: Record<AssetType, number>) => void;
+  onCSVImport?: (csvData: Record<AssetType, string>) => void;
+  marketDataService?: MarketDataService;
 }
 
-export function AssetPricePanel({ prices, returns, isLive }: AssetPricePanelProps) {
+export function AssetPricePanel({ prices, returns, isLive, onPriceUpdate, onCSVImport, marketDataService }: AssetPricePanelProps) {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isCoinbaseModalOpen, setIsCoinbaseModalOpen] = useState(false);
   const formatPrice = (price: number, decimals: number = 2): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -34,17 +45,64 @@ export function AssetPricePanel({ prices, returns, isLive }: AssetPricePanelProp
     { type: AssetType.SOL, name: 'Solana', decimals: 2 },
   ];
 
+  const handleSavePrices = (newPrices: Record<AssetType, number>) => {
+    if (onPriceUpdate) {
+      onPriceUpdate(newPrices);
+    }
+    setIsEditModalOpen(false);
+  };
+
+  const handleExportCSV = () => {
+    if (marketDataService) {
+      CSVExporter.exportAllAssets(marketDataService);
+    }
+  };
+
+  const handleImportCSV = (csvData: Record<AssetType, string>) => {
+    if (onCSVImport) {
+      onCSVImport(csvData);
+    }
+    setIsImportModalOpen(false);
+  };
+
   return (
-    <div className="panel">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="panel-header mb-0">MARKET PRICES</h2>
-        {isLive && (
-          <div className="flex items-center space-x-2">
-            <span className="status-indicator status-healthy animate-pulse"></span>
-            <span className="text-xs font-mono text-primary font-bold">LIVE UPDATES</span>
+    <>
+      <div className="panel">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="panel-header mb-0">MARKET PRICES</h2>
+          <div className="flex items-center space-x-3">
+            {isLive && (
+              <div className="flex items-center space-x-2">
+                <span className="status-indicator status-healthy animate-pulse"></span>
+                <span className="text-xs font-mono text-primary font-bold">LIVE UPDATES</span>
+              </div>
+            )}
+            <button
+              onClick={() => setIsCoinbaseModalOpen(true)}
+              className="px-4 py-2 bg-primary text-background rounded text-xs font-mono font-bold hover:bg-primary-light transition-colors"
+            >
+              📡 COINBASE API
+            </button>
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="px-4 py-2 bg-background-tertiary border border-primary rounded text-xs font-mono text-primary hover:bg-primary hover:text-background transition-colors"
+            >
+              IMPORT CSV
+            </button>
+            <button
+              onClick={handleExportCSV}
+              className="px-4 py-2 bg-background-tertiary border border-border rounded text-xs font-mono text-text-secondary hover:border-primary hover:text-primary transition-colors"
+            >
+              EXPORT CSV
+            </button>
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="px-4 py-2 bg-background-tertiary border border-info rounded text-xs font-mono text-info hover:border-info-light hover:bg-background transition-colors"
+            >
+              EDIT PRICES
+            </button>
           </div>
-        )}
-      </div>
+        </div>
 
       <div className="grid grid-cols-3 gap-4">
         {assets.map(({ type, name, decimals }) => (
@@ -65,5 +123,25 @@ export function AssetPricePanel({ prices, returns, isLive }: AssetPricePanelProp
         ))}
       </div>
     </div>
+
+    <PriceEditModal
+      currentPrices={prices}
+      isOpen={isEditModalOpen}
+      onClose={() => setIsEditModalOpen(false)}
+      onSave={handleSavePrices}
+    />
+
+    <CSVImportModal
+      isOpen={isImportModalOpen}
+      onClose={() => setIsImportModalOpen(false)}
+      onImport={handleImportCSV}
+    />
+
+    <CoinbaseImportModal
+      isOpen={isCoinbaseModalOpen}
+      onClose={() => setIsCoinbaseModalOpen(false)}
+      onImport={handleImportCSV}
+    />
+    </>
   );
 }

@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Loan } from '@/domain/entities/Loan';
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
+import { LoanEditModal } from './LoanEditModal';
 
 interface PortfolioTableProps {
   loans: Loan[];
   prices: Record<AssetType, number>;
+  onLoanUpdate?: (updatedLoan: Loan) => void;
 }
 
-export function PortfolioTable({ loans, prices }: PortfolioTableProps) {
+export function PortfolioTable({ loans, prices, onLoanUpdate }: PortfolioTableProps) {
+  const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
+
   const formatMoney = (amount: number): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -46,21 +50,30 @@ export function PortfolioTable({ loans, prices }: PortfolioTableProps) {
   // Sort by LTV descending (riskiest first)
   loansWithMetrics.sort((a, b) => b.metrics.loanToValue - a.metrics.loanToValue);
 
+  const handleSave = (updatedLoan: Loan) => {
+    if (onLoanUpdate) {
+      onLoanUpdate(updatedLoan);
+    }
+    setEditingLoan(null);
+  };
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm font-mono">
-        <thead>
-          <tr className="border-b border-border-light">
-            <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Borrower</th>
-            <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Rating</th>
-            <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">Principal</th>
-            <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Collateral (USD)</th>
-            <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">LTV</th>
-            <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Status</th>
-            <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">Exp. Loss</th>
-            <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">Roll Date</th>
-          </tr>
-        </thead>
+    <>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm font-mono">
+          <thead>
+            <tr className="border-b border-border-light">
+              <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Borrower</th>
+              <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Rating</th>
+              <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">Principal</th>
+              <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Collateral (USD)</th>
+              <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">LTV</th>
+              <th className="text-left py-3 px-2 text-text-secondary font-bold uppercase text-xs">Status</th>
+              <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">Exp. Loss</th>
+              <th className="text-right py-3 px-2 text-text-secondary font-bold uppercase text-xs">Roll Date</th>
+              <th className="text-center py-3 px-2 text-text-secondary font-bold uppercase text-xs">Actions</th>
+            </tr>
+          </thead>
         <tbody>
           {loansWithMetrics.map(({ loan, metrics, collateralValue }) => (
             <tr
@@ -115,10 +128,28 @@ export function PortfolioTable({ loans, prices }: PortfolioTableProps) {
                   day: 'numeric',
                 })}
               </td>
+              <td className="py-3 px-2 text-center">
+                <button
+                  onClick={() => setEditingLoan(loan)}
+                  className="px-3 py-1 bg-background-tertiary border border-border rounded text-xs font-mono text-primary hover:border-primary transition-colors"
+                >
+                  EDIT
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+
+    {editingLoan && (
+      <LoanEditModal
+        loan={editingLoan}
+        isOpen={!!editingLoan}
+        onClose={() => setEditingLoan(null)}
+        onSave={handleSave}
+      />
+    )}
+    </>
   );
 }

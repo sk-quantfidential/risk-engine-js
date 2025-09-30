@@ -13,8 +13,8 @@ interface DrawdownLTVChartProps {
 
 export function DrawdownLTVChart({ loan, currentPrice, marketDataService }: DrawdownLTVChartProps) {
   const chartData = useMemo(() => {
-    // Get last 30 days of hourly price data
-    const history = marketDataService.getHistory(loan.collateral.type, 30 * 24);
+    // Get last 6 months of hourly price data
+    const history = marketDataService.getHistory(loan.collateral.type, 6 * 30 * 24);
 
     // Calculate LTV for each price point
     return history.map(bar => {
@@ -120,6 +120,8 @@ export function DrawdownLTVChart({ loan, currentPrice, marketDataService }: Draw
               stroke="#9ca3af"
               style={{ fontSize: '12px', fontFamily: 'monospace' }}
               label={{ value: 'LTV %', angle: -90, position: 'insideLeft', style: { fill: '#9ca3af', fontFamily: 'monospace' } }}
+              domain={[0, 'auto']}
+              tickFormatter={(value) => `${value}%`}
             />
             <Tooltip
               contentStyle={{

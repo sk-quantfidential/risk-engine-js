@@ -31,12 +31,12 @@ export class MarketDataService {
   private currentPrices: Record<AssetType, number>;
   private correlationMatrix: CorrelationMatrix;
 
-  constructor() {
-    // Initialize with realistic starting prices (as of late 2024)
+  constructor(csvData?: Record<AssetType, string>) {
+    // Initialize with current market prices (as of 2025-09-30)
     this.currentPrices = {
-      [AssetType.BTC]: 95000,
-      [AssetType.ETH]: 3400,
-      [AssetType.SOL]: 180,
+      [AssetType.BTC]: 111839,
+      [AssetType.ETH]: 4119.60,
+      [AssetType.SOL]: 209.43,
     };
 
     // Realistic correlation structure
@@ -46,17 +46,61 @@ export class MarketDataService {
       ETH_SOL: 0.75,  // Moderate-high correlation
     };
 
-    this.generateHistoricalData();
+    if (csvData) {
+      this.loadFromCSV(csvData);
+    } else {
+      this.generateHistoricalData();
+    }
   }
 
   /**
-   * Generate 3 years of synthetic hourly price data
-   * Uses correlated geometric Brownian motion
+   * Load historical price data from CSV strings
+   */
+  private loadFromCSV(csvData: Record<AssetType, string>): void {
+    for (const asset of Object.values(AssetType)) {
+      const csv = csvData[asset];
+      if (!csv) continue;
+
+      const bars: PriceBar[] = [];
+      const lines = csv.trim().split('\n');
+
+      // Skip header row
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        const [timestamp, open, high, low, close, volume] = line.split(',');
+
+        bars.push({
+          timestamp: new Date(timestamp),
+          open: parseFloat(open),
+          high: parseFloat(high),
+          low: parseFloat(low),
+          close: parseFloat(close),
+          volume: parseFloat(volume),
+        });
+      }
+
+      this.priceHistory.set(asset, bars);
+    }
+
+    // Update current prices from last bar in history
+    for (const asset of Object.values(AssetType)) {
+      const history = this.priceHistory.get(asset);
+      if (history && history.length > 0) {
+        this.currentPrices[asset] = history[history.length - 1].close;
+      }
+    }
+  }
+
+  /**
+   * Generate 4 years of synthetic hourly price data
+   * Uses correlated geometric Brownian motion with target ending prices
    */
   private generateHistoricalData(): void {
-    const hoursIn3Years = 3 * 365 * 24;  // ~26,280 hours
+    const hoursIn4Years = 4 * 365 * 24;  // ~35,040 hours
     const startDate = new Date();
-    startDate.setFullYear(startDate.getFullYear() - 3);
+    startDate.setFullYear(startDate.getFullYear() - 4);
 
     // Asset-specific parameters
     const params = {
@@ -65,25 +109,35 @@ export class MarketDataService {
       [AssetType.SOL]: { drift: 0.0003, volatility: 0.072 },  // ~90% annual vol
     };
 
-    // Starting prices 3 years ago (rough estimates)
+    // Starting prices 4 years ago (rough estimates)
     const startPrices = {
-      [AssetType.BTC]: 20000,
-      [AssetType.ETH]: 1500,
-      [AssetType.SOL]: 35,
+      [AssetType.BTC]: 25000,
+      [AssetType.ETH]: 1800,
+      [AssetType.SOL]: 40,
     };
 
-    // Generate correlated random walks
+    // Target ending prices (current market prices)
+    const targetPrices = this.currentPrices;
+
+    // Generate correlated random walks that end at target prices
     for (const asset of Object.values(AssetType)) {
       const bars: PriceBar[] = [];
-      let currentPrice = startPrices[asset];
 
-      for (let i = 0; i < hoursIn3Years; i++) {
+      // Calculate required drift to reach target price
+      const targetPrice = targetPrices[asset];
+      const startPrice = startPrices[asset];
+      const totalReturn = Math.log(targetPrice / startPrice);
+      const adjustedDrift = totalReturn / hoursIn4Years;
+
+      let currentPrice = startPrice;
+
+      for (let i = 0; i < hoursIn4Years; i++) {
         const timestamp = new Date(startDate.getTime() + i * 60 * 60 * 1000);
 
-        // Generate correlated return
+        // Generate correlated return with adjusted drift
         const correlatedReturn = this.generateCorrelatedReturn(
           asset,
-          params[asset].drift,
+          adjustedDrift,
           params[asset].volatility
         );
 
@@ -108,14 +162,10 @@ export class MarketDataService {
       }
 
       this.priceHistory.set(asset, bars);
-    }
 
-    // Update current prices to end of generated data
-    this.currentPrices = {
-      [AssetType.BTC]: this.priceHistory.get(AssetType.BTC)![hoursIn3Years - 1].close,
-      [AssetType.ETH]: this.priceHistory.get(AssetType.ETH)![hoursIn3Years - 1].close,
-      [AssetType.SOL]: this.priceHistory.get(AssetType.SOL)![hoursIn3Years - 1].close,
-    };
+      // Set current price to last bar (should be close to target)
+      this.currentPrices[asset] = bars[bars.length - 1].close;
+    }
   }
 
   private lastReturns: Record<AssetType, number> = {
@@ -190,6 +240,13 @@ export class MarketDataService {
    */
   getCurrentPrices(): Record<AssetType, number> {
     return { ...this.currentPrices };
+  }
+
+  /**
+   * Set current prices manually (for price editing)
+   */
+  setCurrentPrices(prices: Record<AssetType, number>): void {
+    this.currentPrices = { ...prices };
   }
 
   /**
@@ -292,6 +349,7 @@ export class MarketDataService {
 
   /**
    * Simulate next price tick (for real-time updates)
+   * Creates a random walk from current prices with small movements
    */
   simulateTick(): MarketDataSnapshot {
     const newPrices = { ...this.currentPrices };
@@ -301,10 +359,13 @@ export class MarketDataService {
       [AssetType.SOL]: 0,
     };
 
-    // Simulate small price movements
+    // Simulate small price movements (2-second ticks, so scale down from hourly)
     for (const asset of Object.values(AssetType)) {
-      const volatility = asset === AssetType.BTC ? 0.04 : asset === AssetType.ETH ? 0.052 : 0.072;
-      const tickReturn = this.randomNormal(0, volatility / Math.sqrt(24));  // Hourly movement
+      // Reduced volatility for 2-second intervals (roughly 1/1800 of hourly movement)
+      const baseVol = asset === AssetType.BTC ? 0.04 : asset === AssetType.ETH ? 0.052 : 0.072;
+      const tickVol = baseVol / Math.sqrt(1800); // 3600 seconds/hour ÷ 2 seconds/tick
+      const tickReturn = this.randomNormal(0, tickVol);
+
       newPrices[asset] *= (1 + tickReturn);
       returns[asset] = tickReturn;
     }
