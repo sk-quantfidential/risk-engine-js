@@ -1,4 +1,12 @@
-# Dependencies
+# 
+.gitmodules
+proto/
+.claude/
+.claude_*.md
+AGENTS.md
+.claude-defaults/
+
+# # Dependencies
 /node_modules
 /.pnp
 .pnp.js
@@ -38,3 +46,18 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+
+# Additional security hygiene
+.env
+.env.development
+.env.production
+.env.test
+.env.staging
+.env.*
+.next/cache/
+.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
