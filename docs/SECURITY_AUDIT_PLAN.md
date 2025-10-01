@@ -6,10 +6,15 @@ Objective: Provide evidence-based assurance that this codebase has no backdoors/
 - Improve .gitignore for env files, caches, logs.
 - Add CODEOWNERS and Dependabot to baseline supply-chain hygiene.
 - Lock installs via `npm ci` in CI.
+Status: COMPLETED
 
 ## Phase 1 — Inventory + SBOM
 - Generate SBOM: `syft dir:. -o json > sbom.json`; scan: `grype sbom:sbom.json`.
 - Artifact integrity: store checksums.
+Status: COMPLETED
+Evidence:
+- CI workflows `.github/workflows/sbom.yml`, `.github/workflows/osv.yml` added.
+- Artifacts: SBOM + checksum + Grype + OSV reports uploaded per run.
 
 ## Phase 2 — SAST
 - CodeQL (JS/TS) + Semgrep (security suite + custom rules for: eval/new Function/child_process/vm, obfuscation markers, outbound host allowlist).
