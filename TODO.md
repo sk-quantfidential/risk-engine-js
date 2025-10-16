@@ -135,7 +135,7 @@
 - [x] Task 8: Create Phase 3 secrets scanning templates (gitleaks.yml, gitleaks.toml, hooks, install script)
 - [x] Task 9: Create Phase 4 supply chain templates (npm-audit.yml, scorecards.yml)
 - [x] Task 10: Create Phase 5 backdoor reconnaissance templates (backdoor-recon.yml, extended Semgrep, allowlist utility + tests)
-- [ ] Task 11: Create automation commands
+- [x] Task 11: Create automation commands (setup-phase.sh, run-full-audit.sh, install-gitleaks-hook.sh)
 - [ ] Task 12: Create comprehensive security documentation
 
 ### Next Milestones (Planned)
