@@ -134,7 +134,7 @@
 - [x] Task 7: Create Phase 2 SAST workflow templates (codeql.yml, semgrep.yml, custom rules)
 - [x] Task 8: Create Phase 3 secrets scanning templates (gitleaks.yml, gitleaks.toml, hooks, install script)
 - [x] Task 9: Create Phase 4 supply chain templates (npm-audit.yml, scorecards.yml)
-- [ ] Task 10: Create Phase 5 backdoor reconnaissance templates
+- [x] Task 10: Create Phase 5 backdoor reconnaissance templates (backdoor-recon.yml, extended Semgrep, allowlist utility + tests)
 - [ ] Task 11: Create automation commands
 - [ ] Task 12: Create comprehensive security documentation
 
