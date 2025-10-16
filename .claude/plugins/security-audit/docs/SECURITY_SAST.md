@@ -66,27 +66,22 @@ paths-ignore:
 
 **Schedule**: Push to main, PRs to main, weekly on Tuesday at 03:00 UTC
 
-**Custom Rules** (`.semgrep/custom.yml`):
+**Custom Rules** (`.semgrep/custom.yml`): **9 comprehensive rules**
 
-1. **no-eval-new-function** (ERROR)
-   - Detects: `eval()`, `new Function()`, `Function()`
-   - Severity: ERROR
-   - Why: Code execution vectors, potential RCE
+**Base Rules (1-4)**:
+1. **no-eval-new-function** (ERROR) - Code execution vectors
+2. **no-node-exec-primitives** (WARNING) - Command injection risk
+3. **disallow-external-fetch-hosts** (WARNING) - SSRF prevention
+4. **suspicious-base64-decode** (INFO) - Obfuscation marker
 
-2. **no-node-exec-primitives** (WARNING)
-   - Detects: `child_process.exec()`, `child_process.execSync()`
-   - Severity: WARNING
-   - Why: Command injection risk
+**Extended Rules for Backdoor Detection (5-9)**:
+5. **long-base64-blob** (WARNING) - Embedded payloads
+6. **unicode-homoglyphs-in-source** (INFO) - Homoglyph attacks
+7. **disallow-external-axios-hosts** (WARNING) - SSRF via Axios
+8. **node-networking-primitives** (WARNING) - Bypass allowlist controls
+9. **websocket-external-host** (WARNING) - Potential C2 channels
 
-3. **disallow-external-fetch-hosts** (WARNING)
-   - Detects: `fetch()` calls without allowlist enforcement
-   - Severity: WARNING
-   - Why: SSRF prevention, data exfiltration control
-
-4. **suspicious-base64-decode** (INFO)
-   - Detects: Base64 decode operations
-   - Severity: INFO
-   - Why: Potential obfuscation marker
+**Note**: All 9 rules installed together in Phase 2 for comprehensive coverage.
 
 **SARIF Output**: Uploaded to GitHub Code Scanning
 **Retention**: 90 days

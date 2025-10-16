@@ -99,53 +99,26 @@ Phase 5 implements advanced threat detection to identify potential backdoors, ma
 
 ## Tools and Workflows
 
-### Extended Semgrep Rules
+### Semgrep Rules for Backdoor Detection
 
-**Configuration**: `.semgrep/custom.yml` (extended by Phase 5)
+**Configuration**: `.semgrep/custom.yml` (installed in Phase 2)
 **Workflow**: `.github/workflows/semgrep.yml` (already configured in Phase 2)
 
-**Added Rules**:
+**Note**: The backdoor detection rules (5-9) are now **included in Phase 2** as part of the comprehensive 9-rule `.semgrep/custom.yml` file. Phase 5 does not modify Semgrep rules.
 
-1. **long-base64-blob** (WARNING)
-   ```yaml
-   pattern-regex: '[A-Za-z0-9+/]{100,}={0,2}'
-   ```
-   Detects long base64 strings (potential embedded payloads)
+**Backdoor Detection Rules (Rules 5-9)**:
 
-2. **unicode-homoglyphs-in-source** (INFO)
-   ```yaml
-   pattern-regex: '[а-яА-ЯёЁ]+'
-   ```
-   Detects Cyrillic characters (homoglyph attacks)
+5. **long-base64-blob** (WARNING) - Long base64 strings (80+ chars)
+6. **unicode-homoglyphs-in-source** (INFO) - Non-ASCII characters
+7. **disallow-external-axios-hosts** (WARNING) - Axios calls without allowlist
+8. **node-networking-primitives** (WARNING) - Low-level networking modules
+9. **websocket-external-host** (WARNING) - WebSocket connections
 
-3. **disallow-external-axios-hosts** (WARNING)
-   ```yaml
-   pattern: |
-     axios.$METHOD($URL)
-   ```
-   Requires allowlist check before axios calls
+See `SECURITY_SAST.md` for full details on all 9 Semgrep rules.
 
-4. **node-networking-primitives** (WARNING)
-   ```yaml
-   pattern-either:
-     - require('http')
-     - require('https')
-     - require('net')
-     - require('dgram')
-   ```
-   Flags low-level networking (rare in application code)
-
-5. **websocket-external-host** (WARNING)
-   ```yaml
-   pattern: new WebSocket($URL)
-   ```
-   Detects WebSocket connections (potential C2)
-
-**Installation**:
-Phase 5 extends `.semgrep/custom.yml` from Phase 2:
-```bash
-./claude/plugins/security-audit/commands/setup-phase.sh --phase backdoor-recon
-```
+**Why consolidated**:
+- Phase 2 installs all 9 rules for comprehensive coverage from the start
+- Simpler maintenance (one file instead of extending)
 
 ---
 
@@ -395,15 +368,18 @@ const knownSafeDomains = [
 
 Phase 5 complements other phases:
 - **Phase 1 (SBOM)**: Identify which packages contain suspicious patterns
-- **Phase 2 (SAST)**: Extended rules build on Phase 2 Semgrep config
+- **Phase 2 (SAST)**: Semgrep rules 5-9 provide backdoor detection (already installed)
 - **Phase 3 (Secrets)**: Detect exfiltration of detected secrets
 - **Phase 4 (Supply Chain)**: Cross-reference with Scorecard for package trust
 
 **Combined workflow**:
 1. Scorecard identifies low-trust packages
 2. SBOM shows where those packages are used
-3. Backdoor recon scans those packages for suspicious patterns
-4. Secrets scanning ensures no credentials are exposed
+3. Semgrep rules (Phase 2) scan for obfuscation and networking patterns
+4. Backdoor-recon.yml workflow (Phase 5) performs grep reconnaissance
+5. Secrets scanning ensures no credentials are exposed
+
+**Note**: Phase 2 provides comprehensive Semgrep coverage; Phase 5 adds grep reconnaissance and outbound allowlist enforcement
 
 ---
 
