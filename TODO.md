@@ -130,7 +130,7 @@
 - [x] Task 3: Create detailed plugin README.md documentation
 - [x] Task 4: Create Phase 0 hygiene templates (.gitignore, CODEOWNERS, Dependabot)
 - [x] Task 5: Commit Phase 0 templates (3 commits made)
-- [ ] Task 6: Create Phase 1 SBOM workflow templates
+- [x] Task 6: Create Phase 1 SBOM workflow templates (sbom.yml, osv.yml)
 - [ ] Task 7: Create Phase 2 SAST workflow templates
 - [ ] Task 8: Create Phase 3 secrets scanning templates
 - [ ] Task 9: Create Phase 4 supply chain templates
