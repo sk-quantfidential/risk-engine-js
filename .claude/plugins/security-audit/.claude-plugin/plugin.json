@@ -1,0 +1,270 @@
+{
+  "name": "Security Audit Plugin",
+  "id": "risk-engine-js-security-audit",
+  "version": "1.0.0",
+  "description": "Comprehensive 5-phase security audit framework for Node.js/TypeScript projects implementing CISO-grade security controls",
+  "author": "Quantfidential Security Team",
+  "created": "2025-10-16",
+  "projectCode": "TSE",
+  "epic": "TSE-0002",
+  "epicName": "Security Hardening and Audit Framework",
+  "component": "risk-engine-js",
+  "language": "nodejs",
+  "framework": "nextjs",
+
+  "capabilities": [
+    "phase-0-hygiene",
+    "phase-1-sbom",
+    "phase-2-sast",
+    "phase-3-secrets",
+    "phase-4-supply-chain",
+    "phase-5-backdoor-recon"
+  ],
+
+  "variables": {
+    "ORG_NAME": "Corprime",
+    "PROJECT_NAME": "risk-engine-js",
+    "MAIN_BRANCH": "main",
+    "RUNNER": "ubuntu-latest",
+    "NODE_VERSION": "lts/*",
+    "PACKAGE_MANAGER": "npm",
+    "SECURITY_TEAM": "@Corprime/security",
+    "MAINTAINERS_TEAM": "@Corprime/maintainers",
+    "REPO_OWNER": "Corprime",
+    "REPO_NAME": "risk-engine-js"
+  },
+
+  "phases": {
+    "phase-0-hygiene": {
+      "name": "Hygiene Controls",
+      "milestone": "TSE-0002.1",
+      "description": "Establish baseline security hygiene with .gitignore, CODEOWNERS, and Dependabot",
+      "templates": [
+        "templates/configs/gitignore-additions.txt",
+        "templates/configs/codeowners.txt",
+        "templates/configs/dependabot.yml"
+      ],
+      "outputs": [
+        ".gitignore (enhanced)",
+        ".github/CODEOWNERS",
+        ".github/dependabot.yml"
+      ],
+      "validation": [
+        "git status --ignored | grep -E '\\.(env|log|pem)'",
+        "gh api repos/:owner/:repo/codeowners/errors"
+      ]
+    },
+
+    "phase-1-sbom": {
+      "name": "SBOM & Vulnerability Scanning",
+      "milestone": "TSE-0002.2",
+      "description": "Generate Software Bill of Materials with Syft and scan with Grype/OSV",
+      "templates": [
+        "templates/workflows/sbom.yml",
+        "templates/workflows/osv.yml"
+      ],
+      "outputs": [
+        ".github/workflows/sbom.yml",
+        ".github/workflows/osv.yml",
+        "package.json (scripts: sbom:syft, scan:grype, scan:osv)"
+      ],
+      "validation": [
+        "npm run sbom:syft",
+        "npm run scan:grype",
+        "gh run list --workflow 'SBOM Build & Grype Scan'"
+      ],
+      "artifacts": [
+        "sbom-artifacts/sbom.spdx.json (90-day retention)",
+        "sbom-artifacts/sbom.spdx.sha256",
+        "grype-results/grype.json",
+        "grype-results/grype.sarif",
+        "osv-results/osv.results.json (30-day retention)"
+      ]
+    },
+
+    "phase-2-sast": {
+      "name": "Static Application Security Testing",
+      "milestone": "TSE-0002.3",
+      "description": "Implement CodeQL and Semgrep for continuous code security analysis",
+      "templates": [
+        "templates/workflows/codeql.yml",
+        "templates/workflows/semgrep.yml",
+        "templates/configs/semgrep-custom.yml"
+      ],
+      "outputs": [
+        ".github/workflows/codeql.yml",
+        ".github/workflows/semgrep.yml",
+        ".semgrep/custom.yml",
+        "package.json (scripts: sast:semgrep, sast:quick)"
+      ],
+      "validation": [
+        "npm run sast:semgrep",
+        "gh run list --workflow 'CodeQL'",
+        "gh run list --workflow 'Semgrep'"
+      ],
+      "artifacts": [
+        "codeql-sarif/*.sarif (30-day retention)",
+        "semgrep-sarif/semgrep.sarif (30-day retention)"
+      ],
+      "customRules": [
+        "no-eval-new-function",
+        "no-node-exec-primitives",
+        "disallow-external-fetch-hosts",
+        "suspicious-base64-decode"
+      ]
+    },
+
+    "phase-3-secrets": {
+      "name": "Secrets Scanning",
+      "milestone": "TSE-0002.4",
+      "description": "Continuous secrets detection with Gitleaks and pre-commit hooks",
+      "templates": [
+        "templates/workflows/gitleaks.yml",
+        "templates/configs/gitleaks.toml",
+        "hooks/pre-commit.sh",
+        "commands/install-gitleaks-hook.sh"
+      ],
+      "outputs": [
+        ".github/workflows/gitleaks.yml",
+        ".gitleaks.toml",
+        "scripts/install-gitleaks-hook.sh",
+        ".git/hooks/pre-commit (via install script)",
+        "package.json (scripts: secrets:scan, secrets:staged, postinstall)"
+      ],
+      "validation": [
+        "npm run secrets:scan",
+        "sh scripts/install-gitleaks-hook.sh",
+        "gh run list --workflow 'Gitleaks Secrets Scan'"
+      ],
+      "artifacts": [
+        "gitleaks-report/gitleaks.json (90-day retention)"
+      ]
+    },
+
+    "phase-4-supply-chain": {
+      "name": "Supply Chain Security",
+      "milestone": "TSE-0002.5",
+      "description": "npm audit policy enforcement and OpenSSF Scorecard assessment",
+      "templates": [
+        "templates/workflows/npm-audit.yml",
+        "templates/workflows/scorecards.yml"
+      ],
+      "outputs": [
+        ".github/workflows/npm-audit.yml",
+        ".github/workflows/scorecards.yml"
+      ],
+      "validation": [
+        "npm audit",
+        "npm audit --production",
+        "gh run list --workflow 'npm audit'",
+        "gh run list --workflow 'OpenSSF Scorecards'"
+      ],
+      "artifacts": [
+        "npm-audit-results/npm-audit-full.json (30-day retention)",
+        "npm-audit-results/npm-audit-prod.json",
+        "scorecards-sarif/results.sarif (90-day retention)"
+      ],
+      "policyEnforcement": {
+        "auditLevel": "high",
+        "failOnHigh": true,
+        "failOnCritical": true
+      }
+    },
+
+    "phase-5-backdoor-recon": {
+      "name": "Backdoor Reconnaissance",
+      "milestone": "TSE-0002.6",
+      "description": "Extended obfuscation detection, grep recon, and outbound allowlist enforcement",
+      "templates": [
+        "templates/workflows/backdoor-recon.yml",
+        "templates/configs/semgrep-extended.yml",
+        "templates/configs/outbound-allowlist.ts",
+        "templates/configs/outbound-allowlist.test.ts"
+      ],
+      "outputs": [
+        ".github/workflows/backdoor-recon.yml",
+        ".semgrep/custom.yml (extended with Phase 5 rules)",
+        "infrastructure/security/outbound-allowlist.ts",
+        "infrastructure/security/__tests__/outbound-allowlist.test.ts"
+      ],
+      "validation": [
+        "npm test infrastructure/security/outbound-allowlist.test.ts",
+        "gh run list --workflow 'Backdoor Recon'"
+      ],
+      "artifacts": [
+        "backdoor-recon/backdoor-recon.txt (90-day retention)"
+      ],
+      "extendedRules": [
+        "long-base64-blob",
+        "unicode-homoglyphs-in-source",
+        "disallow-external-axios-hosts",
+        "node-networking-primitives",
+        "websocket-external-host"
+      ]
+    }
+  },
+
+  "dependencies": {
+    "tools": {
+      "syft": ">=0.90.0",
+      "grype": ">=0.70.0",
+      "osv-scanner": "latest",
+      "semgrep": ">=1.40.0",
+      "gitleaks": ">=8.18.0"
+    },
+    "githubActions": {
+      "anchore/sbom-action": "v0",
+      "ossf/scorecard-action": "v2.4.0",
+      "github/codeql-action": "v3",
+      "returntocorp/semgrep-action": "v1",
+      "gitleaks/gitleaks-action": "v2"
+    }
+  },
+
+  "documentation": {
+    "main": "README.md",
+    "security": [
+      "docs/SECURITY_SAST.md",
+      "docs/SECURITY_SECRETS.md",
+      "docs/SECURITY_SBOM.md",
+      "docs/SECURITY_BACKDOOR_RECON.md"
+    ],
+    "prTemplates": [
+      "docs/prs/security-epic-TSE-0002-phase-0-hygiene.md",
+      "docs/prs/security-epic-TSE-0002-phase-1-inventory-and-sbom.md",
+      "docs/prs/security-epic-TSE-0002-phase-2-sast.md",
+      "docs/prs/security-epic-TSE-0002-phase-3-secrets-and-history.md",
+      "docs/prs/security-epic-TSE-0002-phase-4-supply-chain-scan.md",
+      "docs/prs/security-epic-TSE-0002-phase-5-obfuscation-backdoor-recon.md"
+    ]
+  },
+
+  "workflow": {
+    "epicBranching": true,
+    "branchPattern": "feature/TSE-0002.{milestone}-{description}",
+    "commitPattern": "security(TSE-0002/{phase}): {message}",
+    "mergeStrategy": "squash",
+    "requiresReview": true,
+    "reviewers": ["@Corprime/security"]
+  },
+
+  "compliance": {
+    "standards": ["OWASP Top 10", "NIST Supply Chain", "SOC 2", "ISO 27001"],
+    "evidenceRetention": {
+      "sbom": "90 days",
+      "vulnerabilities": "30 days",
+      "secrets": "90 days",
+      "sast": "30 days",
+      "scorecard": "90 days",
+      "recon": "90 days"
+    }
+  },
+
+  "notes": [
+    "All phases are informational initially (continue-on-error: true)",
+    "Phase 4 enforces policy (--audit-level=high)",
+    "Transition to blocking mode after baseline remediation",
+    "Pre-commit hooks are optional but highly recommended",
+    "Outbound allowlist requires environment configuration"
+  ]
+}

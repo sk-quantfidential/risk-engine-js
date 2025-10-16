@@ -1,0 +1,46 @@
+name: Semgrep
+
+on:
+  push:
+    branches: [ {{MAIN_BRANCH}}, "security/**", "deploy/**" ]
+  pull_request:
+    branches: [ {{MAIN_BRANCH}} ]
+  workflow_dispatch:
+
+# Prevent redundant scans on same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  semgrep:
+    runs-on: {{RUNNER}}
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep (OSS rules + custom)
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/ci
+            p/javascript
+            p/owasp-top-ten
+            .semgrep/custom.yml
+          generateSarif: true
+          publishToken: ''
+          auditOn: push
+        continue-on-error: true
+
+      - name: Upload Semgrep SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-sarif
+          path: semgrep.sarif
+          retention-days: 30

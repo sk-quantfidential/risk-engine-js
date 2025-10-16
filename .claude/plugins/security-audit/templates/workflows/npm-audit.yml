@@ -1,0 +1,53 @@
+name: npm audit
+
+on:
+  push:
+    branches: [ {{MAIN_BRANCH}}, "security/**", "deploy/**" ]
+  pull_request:
+    branches: [ {{MAIN_BRANCH}} ]
+  workflow_dispatch:
+
+# Prevent redundant scans on same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: {{RUNNER}}
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install deps (ci)
+        run: npm ci --ignore-scripts
+
+      - name: Generate audit reports (JSON)
+        run: |
+          echo "=== Full dependency audit ==="
+          npm audit --json > npm-audit-full.json || true
+          echo "=== Production dependency audit ==="
+          npm audit --production --json > npm-audit-prod.json || true
+
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit
+          path: |
+            npm-audit-full.json
+            npm-audit-prod.json
+          retention-days: 30
+
+      - name: Enforce audit policy
+        run: npm audit --production --audit-level=high

@@ -1,0 +1,45 @@
+# CODEOWNERS for risk-engine-js
+# Security-critical paths require security team review
+#
+# Epic: TSE-0002 - Security Hardening and Audit Framework
+# Date: {{DATE}}
+#
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# === Default Ownership ===
+# All code should be reviewed by maintainers
+* @{{ORG_NAME}}/maintainers
+
+# === Security-Critical Paths ===
+# Workflows can execute code and access secrets
+/.github/workflows/ @{{ORG_NAME}}/security
+
+# Security configurations control what gets flagged
+/.semgrep/ @{{ORG_NAME}}/security
+/.gitleaks.toml @{{ORG_NAME}}/security
+
+# Security infrastructure (allowlists, validators)
+/infrastructure/security/ @{{ORG_NAME}}/security
+
+# Security documentation and policies
+/docs/SECURITY*.md @{{ORG_NAME}}/security
+/SECURITY.md @{{ORG_NAME}}/security
+
+# === Dependencies (Supply Chain Risk) ===
+# Dependency changes require security review
+/package.json @{{ORG_NAME}}/maintainers @{{ORG_NAME}}/security
+/package-lock.json @{{ORG_NAME}}/maintainers @{{ORG_NAME}}/security
+/yarn.lock @{{ORG_NAME}}/maintainers @{{ORG_NAME}}/security
+/pnpm-lock.yaml @{{ORG_NAME}}/maintainers @{{ORG_NAME}}/security
+
+# === Infrastructure as Code ===
+# Infrastructure changes require DevOps and security review
+/infrastructure/ @{{ORG_NAME}}/devops @{{ORG_NAME}}/security
+/docker/ @{{ORG_NAME}}/devops @{{ORG_NAME}}/security
+/k8s/ @{{ORG_NAME}}/devops @{{ORG_NAME}}/security
+/terraform/ @{{ORG_NAME}}/devops @{{ORG_NAME}}/security
+
+# === Docker and Deployment ===
+/Dockerfile @{{ORG_NAME}}/devops @{{ORG_NAME}}/security
+/docker-compose*.yml @{{ORG_NAME}}/devops @{{ORG_NAME}}/security
+/.dockerignore @{{ORG_NAME}}/devops @{{ORG_NAME}}/security

@@ -1,0 +1,39 @@
+name: OSV Dependency Scan
+
+on:
+  push:
+    branches: [ main, "security/**", "deploy/**" ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Prevent redundant scans on same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run OSV-Scanner
+        run: |
+          docker run --rm -v "$PWD:/workspace" -w /workspace \
+            ghcr.io/google/osv-scanner:latest -r . \
+            --format json --output osv.results.json || true
+        continue-on-error: true
+
+      - name: Upload OSV results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: osv-results
+          path: osv.results.json
+          retention-days: 30

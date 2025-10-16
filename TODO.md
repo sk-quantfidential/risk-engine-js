@@ -118,6 +118,36 @@
 
 ---
 
+## 🔒 Epic TSE-0002: Security Hardening and Audit Framework (IN PROGRESS)
+
+**Epic Started**: 2025-10-16
+**Milestone**: TSE-0002.0 - Security Plugin Foundation
+**Status**: ✅ COMPLETE (12/12 tasks - 100%)
+
+### Phase 0: Plugin Foundation (TSE-0002.0) ✅ COMPLETE
+- [x] Task 1: Create security plugin directory structure
+- [x] Task 2: Create comprehensive plugin.json metadata
+- [x] Task 3: Create detailed plugin README.md documentation
+- [x] Task 4: Create Phase 0 hygiene templates (.gitignore, CODEOWNERS, Dependabot)
+- [x] Task 5: Commit Phase 0 templates (3 commits made)
+- [x] Task 6: Create Phase 1 SBOM workflow templates (sbom.yml, osv.yml)
+- [x] Task 7: Create Phase 2 SAST workflow templates (codeql.yml, semgrep.yml, custom rules)
+- [x] Task 8: Create Phase 3 secrets scanning templates (gitleaks.yml, gitleaks.toml, hooks, install script)
+- [x] Task 9: Create Phase 4 supply chain templates (npm-audit.yml, scorecards.yml)
+- [x] Task 10: Create Phase 5 backdoor reconnaissance templates (backdoor-recon.yml, extended Semgrep, allowlist utility + tests)
+- [x] Task 11: Create automation commands (setup-phase.sh, run-full-audit.sh, install-gitleaks-hook.sh)
+- [x] Task 12: Create comprehensive security documentation (4 docs: OVERVIEW, SAST, SECRETS, SBOM, BACKDOOR_RECON)
+
+### Next Milestones (Planned)
+- TSE-0002.1: Hygiene Controls Implementation
+- TSE-0002.2: SBOM Generation Implementation
+- TSE-0002.3: SAST Implementation
+- TSE-0002.4: Secrets Scanning Implementation
+- TSE-0002.5: Supply Chain Security Implementation
+- TSE-0002.6: Backdoor Reconnaissance Implementation
+
+---
+
 ## 🚀 Future Enhancements (Post-MVP)
 
 ### Phase 7: Enhanced Analytics
