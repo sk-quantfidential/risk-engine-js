@@ -1,13 +1,3 @@
-# Semgrep Static Analysis Workflow
-# Epic: TSE-0002 - Security Hardening and Audit Framework
-# Phase: Phase 2 - SAST (Static Application Security Testing)
-# Generated: {{DATE}}
-#
-# This workflow performs fast pattern-based security scanning using Semgrep
-# with both community rules and custom project-specific rules.
-#
-# Documentation: https://semgrep.dev/docs/
-
 name: Semgrep
 
 on:
@@ -17,6 +7,7 @@ on:
     branches: [ {{MAIN_BRANCH}} ]
   workflow_dispatch:
 
+# Prevent redundant scans on same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -25,14 +16,12 @@ jobs:
   semgrep:
     runs-on: {{RUNNER}}
     timeout-minutes: 15
-
     permissions:
       actions: read
       contents: read
       security-events: write
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run Semgrep (OSS rules + custom)
@@ -55,13 +44,3 @@ jobs:
           name: semgrep-sarif
           path: semgrep.sarif
           retention-days: 30
-
-      - name: Display scan summary
-        if: always()
-        run: |
-          echo "=== Semgrep Analysis Complete ==="
-          echo "Check GitHub → Security → Code scanning for detailed results"
-          if [ -f semgrep.sarif ]; then
-            echo "SARIF report generated: semgrep.sarif"
-            ls -lh semgrep.sarif
-          fi

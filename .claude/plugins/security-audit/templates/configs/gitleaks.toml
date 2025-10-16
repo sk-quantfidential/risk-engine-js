@@ -1,15 +1,9 @@
 # Gitleaks Configuration for risk-engine-js
-# Epic: TSE-0002 - Security Hardening and Audit Framework
-# Phase: Phase 3 - Secrets Scanning
-# Generated: {{DATE}}
-#
-# This configuration defines allowlists for false positives and known non-secrets.
-# Documentation: https://github.com/gitleaks/gitleaks#configuration
 
-title = "Gitleaks configuration for {{PROJECT_NAME}}"
+title = "Gitleaks configuration for risk-engine-js"
 
 [allowlist]
-  description = "Allowed paths and patterns for {{PROJECT_NAME}}"
+  description = "Allowed paths and patterns for risk-engine-js"
 
   # Paths to exclude (high false positive rate)
   paths = [

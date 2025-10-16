@@ -1,10 +1,5 @@
 #!/usr/bin/env sh
 # Pre-commit hook for Gitleaks secrets scanning
-# Epic: TSE-0002 - Security Hardening and Audit Framework
-# Phase: Phase 3 - Secrets Scanning
-# Generated: {{DATE}}
-#
-# This hook prevents committing secrets using Gitleaks.
 # To bypass (NOT RECOMMENDED): git commit --no-verify
 
 echo "🔒 Scanning for secrets..."

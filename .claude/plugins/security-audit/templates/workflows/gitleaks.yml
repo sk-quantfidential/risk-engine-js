@@ -1,13 +1,3 @@
-# Gitleaks Secrets Scan Workflow
-# Epic: TSE-0002 - Security Hardening and Audit Framework
-# Phase: Phase 3 - Secrets Scanning
-# Generated: {{DATE}}
-#
-# This workflow scans the entire Git history for leaked credentials, API keys,
-# tokens, and other secrets using Gitleaks.
-#
-# Documentation: https://github.com/gitleaks/gitleaks
-
 name: Gitleaks Secrets Scan
 
 on:
@@ -17,6 +7,7 @@ on:
     branches: [ {{MAIN_BRANCH}} ]
   workflow_dispatch:
 
+# Prevent redundant scans on same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -28,12 +19,11 @@ jobs:
   scan:
     runs-on: {{RUNNER}}
     timeout-minutes: 10
-
     steps:
-      - name: Checkout repository (full history)
+      - name: Checkout (full history)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # CRITICAL: Full history scan
+          fetch-depth: 0  # Full history scan
 
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
@@ -48,18 +38,3 @@ jobs:
           name: gitleaks-report
           path: gitleaks.json
           retention-days: 90
-
-      - name: Display scan summary
-        if: always()
-        run: |
-          echo "=== Gitleaks Secrets Scan Complete ==="
-          if [ -f gitleaks.json ]; then
-            echo "Scan completed. Check artifacts for details."
-            if command -v jq &> /dev/null; then
-              echo ""
-              echo "Summary:"
-              jq '.[] | {file: .File, secret: .Secret, rule: .RuleID}' gitleaks.json 2>/dev/null || echo "Results available in artifact"
-            fi
-          else
-            echo "No secrets detected in Git history."
-          fi

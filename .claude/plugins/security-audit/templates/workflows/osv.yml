@@ -1,13 +1,3 @@
-# OSV Dependency Scan Workflow
-# Epic: TSE-0002 - Security Hardening and Audit Framework
-# Phase: Phase 1 - SBOM & Vulnerability Scanning
-# Generated: {{DATE}}
-#
-# This workflow uses OSV-Scanner to scan for vulnerabilities in dependencies
-# using Google's Open Source Vulnerabilities database.
-#
-# Documentation: https://google.github.io/osv-scanner/
-
 name: OSV Dependency Scan
 
 on:
@@ -17,21 +7,20 @@ on:
     branches: [ {{MAIN_BRANCH}} ]
   workflow_dispatch:
 
+# Prevent redundant scans on same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  security-events: write
 
 jobs:
-  osv-scan:
+  scan:
     runs-on: {{RUNNER}}
     timeout-minutes: 10
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Run OSV-Scanner
@@ -48,18 +37,3 @@ jobs:
           name: osv-results
           path: osv.results.json
           retention-days: 30
-
-      - name: Display scan summary
-        if: always()
-        run: |
-          echo "=== OSV Scan Complete ==="
-          if [ -f osv.results.json ]; then
-            echo "OSV scan completed. Check artifacts for vulnerability details."
-            if command -v jq &> /dev/null; then
-              echo ""
-              echo "Summary:"
-              jq '.results[].packages | length' osv.results.json 2>/dev/null || echo "No vulnerabilities found or jq not available"
-            fi
-          else
-            echo "OSV scan completed with no output file (likely no vulnerabilities found)."
-          fi

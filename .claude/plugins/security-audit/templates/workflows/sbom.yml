@@ -1,13 +1,3 @@
-# SBOM Build & Grype Scan Workflow
-# Epic: TSE-0002 - Security Hardening and Audit Framework
-# Phase: Phase 1 - SBOM & Vulnerability Scanning
-# Generated: {{DATE}}
-#
-# This workflow generates a Software Bill of Materials (SBOM) using Syft
-# and scans it for vulnerabilities using Grype.
-#
-# Documentation: https://github.com/anchore/sbom-action
-
 name: SBOM Build & Grype Scan
 
 on:
@@ -17,6 +7,7 @@ on:
     branches: [ {{MAIN_BRANCH}} ]
   workflow_dispatch:
 
+# Prevent redundant scans on same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -28,62 +19,43 @@ jobs:
   sbom-and-scan:
     runs-on: {{RUNNER}}
     timeout-minutes: 15
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Generate SBOM (Syft)
         uses: anchore/sbom-action@v0
         with:
-          path: .
+          artifact-name: sbom.spdx.json
           format: spdx-json
           output-file: sbom.spdx.json
 
-      - name: Generate SBOM checksum
+      - name: SBOM checksum
         run: sha256sum sbom.spdx.json > sbom.spdx.sha256
 
       - name: Upload SBOM artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: sbom-artifacts
+          name: sbom
           path: |
             sbom.spdx.json
             sbom.spdx.sha256
           retention-days: 90
 
-      - name: Grype vulnerability scan (JSON)
+      - name: Grype scan (JSON + SARIF)
         run: |
           docker run --rm -v "$PWD:/work" -w /work anchore/grype:latest \
             sbom:sbom.spdx.json -o json > grype.json
-        continue-on-error: true
-
-      - name: Grype vulnerability scan (SARIF)
-        run: |
           docker run --rm -v "$PWD:/work" -w /work anchore/grype:latest \
             sbom:sbom.spdx.json -o sarif > grype.sarif
         continue-on-error: true
 
-      - name: Upload Grype results
+      - name: Upload Grype artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: grype-results
+          name: grype
           path: |
             grype.json
             grype.sarif
           retention-days: 90
-
-      - name: Display scan summary
-        if: always()
-        run: |
-          echo "=== SBOM Generation Complete ==="
-          ls -lh sbom.spdx.json
-          cat sbom.spdx.sha256
-          echo ""
-          echo "=== Grype Scan Results ==="
-          if [ -f grype.json ]; then
-            echo "Vulnerability scan completed. Check artifacts for details."
-          else
-            echo "Vulnerability scan failed or found no vulnerabilities."
-          fi
