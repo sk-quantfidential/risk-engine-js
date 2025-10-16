@@ -118,6 +118,36 @@
 
 ---
 
+## 🔒 Epic TSE-0002: Security Hardening and Audit Framework (IN PROGRESS)
+
+**Epic Started**: 2025-10-16
+**Milestone**: TSE-0002.0 - Security Plugin Foundation
+**Status**: In Progress
+
+### Phase 0: Plugin Foundation (TSE-0002.0) ✅ IN PROGRESS
+- [x] Task 1: Create security plugin directory structure
+- [x] Task 2: Create comprehensive plugin.json metadata
+- [x] Task 3: Create detailed plugin README.md documentation
+- [x] Task 4: Create Phase 0 hygiene templates (.gitignore, CODEOWNERS, Dependabot)
+- [ ] Task 5: Commit Phase 0 templates
+- [ ] Task 6: Create Phase 1 SBOM workflow templates
+- [ ] Task 7: Create Phase 2 SAST workflow templates
+- [ ] Task 8: Create Phase 3 secrets scanning templates
+- [ ] Task 9: Create Phase 4 supply chain templates
+- [ ] Task 10: Create Phase 5 backdoor reconnaissance templates
+- [ ] Task 11: Create automation commands
+- [ ] Task 12: Create comprehensive security documentation
+
+### Next Milestones (Planned)
+- TSE-0002.1: Hygiene Controls Implementation
+- TSE-0002.2: SBOM Generation Implementation
+- TSE-0002.3: SAST Implementation
+- TSE-0002.4: Secrets Scanning Implementation
+- TSE-0002.5: Supply Chain Security Implementation
+- TSE-0002.6: Backdoor Reconnaissance Implementation
+
+---
+
 ## 🚀 Future Enhancements (Post-MVP)
 
 ### Phase 7: Enhanced Analytics
