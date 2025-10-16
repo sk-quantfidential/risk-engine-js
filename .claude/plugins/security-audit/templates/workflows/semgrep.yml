@@ -1,0 +1,67 @@
+# Semgrep Static Analysis Workflow
+# Epic: TSE-0002 - Security Hardening and Audit Framework
+# Phase: Phase 2 - SAST (Static Application Security Testing)
+# Generated: {{DATE}}
+#
+# This workflow performs fast pattern-based security scanning using Semgrep
+# with both community rules and custom project-specific rules.
+#
+# Documentation: https://semgrep.dev/docs/
+
+name: Semgrep
+
+on:
+  push:
+    branches: [ {{MAIN_BRANCH}}, "security/**", "deploy/**" ]
+  pull_request:
+    branches: [ {{MAIN_BRANCH}} ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  semgrep:
+    runs-on: {{RUNNER}}
+    timeout-minutes: 15
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep (OSS rules + custom)
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/ci
+            p/javascript
+            p/owasp-top-ten
+            .semgrep/custom.yml
+          generateSarif: true
+          publishToken: ''
+          auditOn: push
+        continue-on-error: true
+
+      - name: Upload Semgrep SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-sarif
+          path: semgrep.sarif
+          retention-days: 30
+
+      - name: Display scan summary
+        if: always()
+        run: |
+          echo "=== Semgrep Analysis Complete ==="
+          echo "Check GitHub → Security → Code scanning for detailed results"
+          if [ -f semgrep.sarif ]; then
+            echo "SARIF report generated: semgrep.sarif"
+            ls -lh semgrep.sarif
+          fi

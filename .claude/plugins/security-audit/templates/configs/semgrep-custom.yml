@@ -1,0 +1,97 @@
+# Custom Semgrep Rules for risk-engine-js
+# Epic: TSE-0002 - Security Hardening and Audit Framework
+# Phase: Phase 2 - SAST (Static Application Security Testing)
+# Generated: {{DATE}}
+#
+# These rules enforce project-specific security policies beyond OSS rulesets.
+# Documentation: https://semgrep.dev/docs/writing-rules/
+
+rules:
+  # === Dynamic Code Execution Prevention ===
+  - id: no-eval-new-function
+    message: Avoid dynamic code execution via eval/new Function - high security risk
+    severity: ERROR
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: eval($X)
+          - pattern: new Function($ARGS)
+    metadata:
+      category: security
+      cwe: "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code"
+      owasp: "A03:2021 - Injection"
+      confidence: HIGH
+      impact: HIGH
+      likelihood: MEDIUM
+
+  # === Node.js Execution Primitives ===
+  - id: no-node-exec-primitives
+    message: Avoid Node.js execution primitives (child_process, vm) in application source
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: require('child_process').$FUNC(...)
+          - pattern: child_process.$FUNC(...)
+          - pattern: require('vm').$FUNC(...)
+          - pattern: vm.$FUNC(...)
+    paths:
+      exclude:
+        - "**/__tests__/**"
+        - "*.test.ts"
+        - "*.test.js"
+        - "**/scripts/**"
+    metadata:
+      category: security
+      cwe: "CWE-78: OS Command Injection"
+      owasp: "A03:2021 - Injection"
+      confidence: MEDIUM
+      impact: HIGH
+      likelihood: LOW
+
+  # === External Fetch Hosts ===
+  - id: disallow-external-fetch-hosts
+    message: Fetching external hosts should use an allowlist from config; found hardcoded http(s) URL
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: fetch("http$X://$HOST/$REST", ...)
+          - pattern: fetch(`http$X://$HOST/$REST`, ...)
+    paths:
+      exclude:
+        - "**/__tests__/**"
+        - "*.test.ts"
+        - "*.test.js"
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery"
+      owasp: "A10:2021 - Server-Side Request Forgery"
+      confidence: MEDIUM
+      impact: MEDIUM
+      likelihood: MEDIUM
+      remediation: Use server-side route handlers or an allowlisted base URL from config/env
+
+  # === Base64 Decoding (Informational) ===
+  - id: suspicious-base64-decode
+    message: Base64 decode detected - review for potential obfuscation or encoded payloads
+    severity: INFO
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: Buffer.from($X, 'base64')
+          - pattern: atob($X)
+    paths:
+      exclude:
+        - "**/__tests__/**"
+        - "*.test.ts"
+        - "*.test.js"
+        - "*.spec.ts"
+        - "*.spec.js"
+    metadata:
+      category: security
+      cwe: "CWE-506: Embedded Malicious Code"
+      confidence: LOW
+      impact: MEDIUM
+      likelihood: LOW
+      remediation: Review usage context. Base64 is legitimate for data encoding but can hide malicious payloads.
