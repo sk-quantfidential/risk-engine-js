@@ -1,0 +1,48 @@
+# Gitleaks Configuration for risk-engine-js
+
+title = "Gitleaks configuration for risk-engine-js"
+
+[allowlist]
+  description = "Allowed paths and patterns for risk-engine-js"
+
+  # Paths to exclude (high false positive rate)
+  paths = [
+    '''node_modules/''',
+    '''.next/''',
+    '''dist/''',
+    '''build/''',
+    '''coverage/''',
+    '''proto/''',
+    '''test/fixtures/''',
+    '''__tests__/fixtures/''',
+    '''**/*.test.ts''',
+    '''**/*.test.js''',
+    '''**/*.spec.ts''',
+    '''**/*.spec.js''',
+    '''package-lock.json''',
+    '''yarn.lock''',
+    '''pnpm-lock.yaml'''
+  ]
+
+  # Specific regexes to allow (documented exceptions)
+  # Add patterns here as false positives are discovered
+  regexes = [
+    # Example placeholder tokens in documentation
+    # '''sk-proj-[a-zA-Z0-9]{48}  # Example OpenAI key in docs''',
+    # Test data patterns
+    # '''test_[a-zA-Z0-9]{32}  # Test tokens'''
+  ]
+
+  # Allow specific commits (DANGEROUS - use sparingly)
+  # Only use this for initial commits with dummy data
+  # commits = [
+  #   "abc123def456"  # Initial commit with example data
+  # ]
+
+  # Stopwords to ignore in commit messages
+  stopwords = [
+    # Common words that trigger false positives
+    # '''password''',
+    # '''token''',
+    # '''secret'''
+  ]

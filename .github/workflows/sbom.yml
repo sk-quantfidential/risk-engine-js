@@ -1,0 +1,61 @@
+name: SBOM Build & Grype Scan
+
+on:
+  push:
+    branches: [ main, "security/**", "deploy/**" ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Prevent redundant scans on same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  sbom-and-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate SBOM (Syft)
+        uses: anchore/sbom-action@v0
+        with:
+          artifact-name: sbom.spdx.json
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: SBOM checksum
+        run: sha256sum sbom.spdx.json > sbom.spdx.sha256
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: |
+            sbom.spdx.json
+            sbom.spdx.sha256
+          retention-days: 90
+
+      - name: Grype scan (JSON + SARIF)
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work anchore/grype:latest \
+            sbom:sbom.spdx.json -o json > grype.json
+          docker run --rm -v "$PWD:/work" -w /work anchore/grype:latest \
+            sbom:sbom.spdx.json -o sarif > grype.sarif
+        continue-on-error: true
+
+      - name: Upload Grype artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grype
+          path: |
+            grype.json
+            grype.sarif
+          retention-days: 90
