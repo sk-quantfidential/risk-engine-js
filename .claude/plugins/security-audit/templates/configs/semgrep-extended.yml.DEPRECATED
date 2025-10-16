@@ -1,0 +1,146 @@
+# DEPRECATED: This file is no longer used
+# Date deprecated: 2025-10-16
+#
+# All Semgrep rules (base + extended) have been consolidated into semgrep-custom.yml
+#
+# Previously, this file contained 5 extended rules for Phase 5 (Backdoor Reconnaissance):
+# - long-base64-blob
+# - unicode-homoglyphs-in-source
+# - disallow-external-axios-hosts
+# - node-networking-primitives
+# - websocket-external-host
+#
+# These rules are now included in semgrep-custom.yml from Phase 2 installation.
+#
+# Reasoning for consolidation:
+# - Simpler maintenance (one comprehensive rule file)
+# - Matches CorPrime deployed best practice
+# - Avoids confusion about "extending" vs "installing" rules
+# - Phase 2 installs all 9 rules; Phase 5 only installs backdoor-recon.yml workflow
+#
+# Migration: Use semgrep-custom.yml which contains all 9 rules merged
+#
+# Original header:
+# Epic: TSE-0002 - Security Hardening and Audit Framework
+# Phase: Phase 5 - Backdoor Reconnaissance (now integrated into Phase 2)
+
+rules:
+  # === Long Base64 Blobs ===
+  - id: long-base64-blob
+    message: Suspicious long base64-like blob detected; review for embedded payloads
+    severity: WARNING
+    languages: [javascript, typescript]
+    pattern-regex: "[A-Za-z0-9+/]{80,}={0,2}"
+    paths:
+      exclude:
+        - "**/__tests__/**"
+        - "*.test.ts"
+        - "*.test.js"
+        - "**/fixtures/**"
+    metadata:
+      category: security
+      cwe: "CWE-506: Embedded Malicious Code"
+      confidence: LOW
+      impact: MEDIUM
+      likelihood: LOW
+      remediation: Review context - legitimate for JWTs, data URIs, or encoded assets. Move large data to static files if possible.
+
+  # === Unicode Homoglyphs ===
+  - id: unicode-homoglyphs-in-source
+    message: Non-ASCII characters detected; check for homoglyph obfuscation in identifiers
+    severity: INFO
+    languages: [generic]
+    paths:
+      include:
+        - "**/*.js"
+        - "**/*.ts"
+        - "**/*.tsx"
+        - "**/*.jsx"
+      exclude:
+        - "**/__tests__/**"
+        - "*.test.ts"
+        - "*.test.js"
+    pattern-regex: "[^\x00-\x7F]"
+    metadata:
+      category: security
+      cwe: "CWE-451: User Interface (UI) Misrepresentation of Critical Information"
+      confidence: LOW
+      impact: MEDIUM
+      likelihood: LOW
+      remediation: Review context - legitimate for i18n strings, comments, currency symbols. Flag suspicious homoglyphs in identifiers.
+
+  # === External Axios Calls ===
+  - id: disallow-external-axios-hosts
+    message: Axios call to external host should use allowlisted base URL
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: axios.get("http$X://$HOST/$REST", ...)
+          - pattern: axios.post("http$X://$HOST/$REST", ...)
+          - pattern: axios.put("http$X://$HOST/$REST", ...)
+          - pattern: axios.delete("http$X://$HOST/$REST", ...)
+          - pattern: axios("http$X://$HOST/$REST", ...)
+          - pattern: axios.request({url:"http$X://$HOST/$REST",...})
+    paths:
+      exclude:
+        - "**/__tests__/**"
+        - "*.test.ts"
+        - "*.test.js"
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery"
+      owasp: "A10:2021 - Server-Side Request Forgery"
+      confidence: MEDIUM
+      impact: MEDIUM
+      likelihood: MEDIUM
+      remediation: Use allowlisted base URL from infrastructure/security/outbound-allowlist.ts
+
+  # === Node.js Networking Primitives ===
+  - id: node-networking-primitives
+    message: Usage of core networking modules (http/https/net/dgram) found; ensure allowlist/proxy
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: require('http')
+          - pattern: require('https')
+          - pattern: require('net')
+          - pattern: require('dgram')
+          - pattern: import ... from 'http'
+          - pattern: import ... from 'https'
+          - pattern: import ... from 'net'
+          - pattern: import ... from 'dgram'
+    paths:
+      exclude:
+        - "**/__tests__/**"
+        - "**/scripts/**"
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery"
+      confidence: LOW
+      impact: HIGH
+      likelihood: LOW
+      remediation: Low-level networking bypasses high-level allowlist controls. Verify legitimate use case.
+
+  # === WebSocket External Connections ===
+  - id: websocket-external-host
+    message: WebSocket connecting to external host should be allowlisted
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: new WebSocket("ws$X://$HOST/$REST", ...)
+          - pattern: new WebSocket(`ws$X://$HOST/$REST`, ...)
+    paths:
+      exclude:
+        - "**/__tests__/**"
+        - "*.test.ts"
+        - "*.test.js"
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery"
+      confidence: MEDIUM
+      impact: MEDIUM
+      likelihood: LOW
+      remediation: Verify external WebSocket connection is necessary and allowlisted

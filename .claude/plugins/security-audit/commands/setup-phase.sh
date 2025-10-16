@@ -164,15 +164,10 @@ install_backdoor_recon() {
   mkdir -p .github/workflows
   copy_template "$PLUGIN_DIR/templates/workflows/backdoor-recon.yml" ".github/workflows/backdoor-recon.yml"
 
-  # Extend Semgrep rules
-  if [ -f ".semgrep/custom.yml" ]; then
-    echo -e "${YELLOW}Appending extended Semgrep rules to .semgrep/custom.yml...${NC}"
-    echo "" >> .semgrep/custom.yml
-    echo "# === Extended Rules from Phase 5 ===" >> .semgrep/custom.yml
-    cat "$PLUGIN_DIR/templates/configs/semgrep-extended.yml" >> .semgrep/custom.yml
-    echo -e "${GREEN}✓${NC} Extended .semgrep/custom.yml"
-  else
-    echo -e "${YELLOW}⚠${NC} .semgrep/custom.yml not found - run Phase 2 (SAST) first"
+  # Note: Semgrep rules are already comprehensive in Phase 2
+  # The 9 rules in .semgrep/custom.yml include both base (Phase 2) and extended (Phase 5) detection patterns
+  if [ ! -f ".semgrep/custom.yml" ]; then
+    echo -e "${YELLOW}⚠${NC} .semgrep/custom.yml not found - run Phase 2 (SAST) first for comprehensive rules"
   fi
 
   # Copy outbound allowlist utility
