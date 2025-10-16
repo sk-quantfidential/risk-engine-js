@@ -6,6 +6,7 @@ title = "Gitleaks configuration for risk-engine-js"
   description = "Allowed paths and patterns for risk-engine-js"
 
   # Paths to exclude (high false positive rate)
+  # Note: These are regex patterns, not glob patterns
   paths = [
     '''node_modules/''',
     '''.next/''',
@@ -15,13 +16,13 @@ title = "Gitleaks configuration for risk-engine-js"
     '''proto/''',
     '''test/fixtures/''',
     '''__tests__/fixtures/''',
-    '''**/*.test.ts''',
-    '''**/*.test.js''',
-    '''**/*.spec.ts''',
-    '''**/*.spec.js''',
-    '''package-lock.json''',
-    '''yarn.lock''',
-    '''pnpm-lock.yaml'''
+    '''.*\.test\.ts$''',
+    '''.*\.test\.js$''',
+    '''.*\.spec\.ts$''',
+    '''.*\.spec\.js$''',
+    '''package-lock\.json$''',
+    '''yarn\.lock$''',
+    '''pnpm-lock\.yaml$'''
   ]
 
   # Specific regexes to allow (documented exceptions)
