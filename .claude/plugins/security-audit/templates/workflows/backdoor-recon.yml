@@ -1,0 +1,84 @@
+# Backdoor Reconnaissance Workflow
+# Epic: TSE-0002 - Security Hardening and Audit Framework
+# Phase: Phase 5 - Backdoor Reconnaissance
+# Generated: {{DATE}}
+#
+# This workflow performs grep-based reconnaissance to detect obfuscation markers,
+# hidden networking, and other backdoor patterns that may evade traditional SAST.
+#
+# Documentation: Internal security audit framework
+
+name: Backdoor Recon
+
+on:
+  push:
+    branches: [ {{MAIN_BRANCH}}, "security/**", "deploy/**" ]
+  pull_request:
+    branches: [ {{MAIN_BRANCH}} ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  recon:
+    runs-on: {{RUNNER}}
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Reconnaissance grep sweep
+        run: |
+          {
+            echo "=== Backdoor Reconnaissance Report ==="
+            echo "Generated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+            echo ""
+
+            echo "== Potential obfuscation markers =="
+            echo "Searching for: while(!![])", Function(), eval(), base64 decoding, long base64 strings"
+            echo ""
+            rg -n "while\(!!\[\]\)" --type js --type ts || echo "  None found"
+            rg -n "\bFunction\(" --type js --type ts || echo "  None found"
+            rg -n "\beval\(" --type js --type ts || echo "  None found"
+            rg -n "atob\(|Buffer\.from\([^,]+,\s*'base64'\)" --type js --type ts || echo "  None found"
+            rg -n "[A-Za-z0-9+/]{80,}={0,2}" --type js --type ts || echo "  None found"
+            echo ""
+
+            echo "== Unicode non-ASCII characters =="
+            echo "Searching for potential homoglyph attacks"
+            echo ""
+            rg -n "[^\x00-\x7F]" --hidden -g '!node_modules' -g '!*.png' -g '!*.jpg' -g '!*.svg' -g '!package-lock.json' --type js --type ts || echo "  None found"
+            echo ""
+
+            echo "== Hidden networking primitives =="
+            echo "Searching for: http/https/net/dgram modules, WebSocket, fetch with hardcoded URLs"
+            echo ""
+            rg -n 'require\(.(http|https|net|dgram).\)|import.*from.*(http|https|net|dgram)' --type js --type ts || echo "  None found"
+            rg -n 'new\s+WebSocket\(' --type js --type ts || echo "  None found"
+            rg -n 'fetch\(\s*["\x27]https?://' --type js --type ts || echo "  None found"
+            echo ""
+
+            echo "=== End of Reconnaissance Report ==="
+          } > backdoor-recon.txt
+
+      - name: Upload reconnaissance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backdoor-recon
+          path: backdoor-recon.txt
+          retention-days: 90
+
+      - name: Display summary
+        if: always()
+        run: |
+          echo "=== Backdoor Reconnaissance Complete ==="
+          echo "Report saved to artifact: backdoor-recon.txt"
+          echo ""
+          cat backdoor-recon.txt
