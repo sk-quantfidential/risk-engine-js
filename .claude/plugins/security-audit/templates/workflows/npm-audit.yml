@@ -1,0 +1,86 @@
+# npm audit Workflow
+# Epic: TSE-0002 - Security Hardening and Audit Framework
+# Phase: Phase 4 - Supply Chain Security
+# Generated: {{DATE}}
+#
+# This workflow audits npm dependencies for known vulnerabilities
+# and enforces policy (fails on High/Critical vulnerabilities).
+#
+# Documentation: https://docs.npmjs.com/cli/v10/commands/npm-audit
+
+name: npm audit
+
+on:
+  push:
+    branches: [ {{MAIN_BRANCH}}, "security/**", "deploy/**" ]
+  pull_request:
+    branches: [ {{MAIN_BRANCH}} ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: {{RUNNER}}
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '{{NODE_VERSION}}'
+          cache: '{{PACKAGE_MANAGER}}'
+
+      - name: Install dependencies (ci)
+        run: npm ci --ignore-scripts
+
+      - name: Generate audit reports (JSON)
+        run: |
+          echo "=== Full dependency audit ==="
+          npm audit --json > npm-audit-full.json || true
+          echo ""
+          echo "=== Production dependency audit ==="
+          npm audit --production --json > npm-audit-prod.json || true
+        continue-on-error: true
+
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-results
+          path: |
+            npm-audit-full.json
+            npm-audit-prod.json
+          retention-days: 30
+
+      - name: Display audit summary
+        if: always()
+        run: |
+          echo "=== npm audit Summary ==="
+          if [ -f npm-audit-full.json ]; then
+            if command -v jq &> /dev/null; then
+              echo "Full dependencies:"
+              jq '.metadata.vulnerabilities' npm-audit-full.json 2>/dev/null || echo "Check artifacts for details"
+              echo ""
+              echo "Production dependencies:"
+              jq '.metadata.vulnerabilities' npm-audit-prod.json 2>/dev/null || echo "Check artifacts for details"
+            else
+              echo "Audit reports available in artifacts"
+            fi
+          fi
+
+      - name: Enforce policy (fail on high/critical)
+        run: |
+          echo "=== Enforcing High/Critical policy on all dependencies ==="
+          npm audit --audit-level=high
+          echo ""
+          echo "=== Enforcing High/Critical policy on production dependencies ==="
+          npm audit --production --audit-level=high

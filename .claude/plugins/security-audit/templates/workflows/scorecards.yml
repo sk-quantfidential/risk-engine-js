@@ -1,0 +1,78 @@
+# OpenSSF Scorecards Workflow
+# Epic: TSE-0002 - Security Hardening and Audit Framework
+# Phase: Phase 4 - Supply Chain Security
+# Generated: {{DATE}}
+#
+# This workflow assesses repository security best practices using OpenSSF Scorecard.
+# Scores 18+ security checks including branch protection, CI tests, code review, etc.
+#
+# Documentation: https://github.com/ossf/scorecard
+
+name: OpenSSF Scorecards
+
+on:
+  push:
+    branches: [ {{MAIN_BRANCH}} ]
+  pull_request:
+    branches: [ {{MAIN_BRANCH}} ]
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly Monday 6 AM UTC
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+  security-events: write
+
+jobs:
+  analysis:
+    runs-on: {{RUNNER}}
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run Scorecards analysis
+        uses: ossf/scorecard-action@v2.4.0
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: false
+
+      - name: Upload Scorecards SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scorecards-sarif
+          path: results.sarif
+          retention-days: 90
+
+      - name: Display scorecard summary
+        if: always()
+        run: |
+          echo "=== OpenSSF Scorecard Analysis Complete ==="
+          echo "Check artifacts for detailed SARIF results"
+          if [ -f results.sarif ]; then
+            echo "SARIF report generated: results.sarif"
+            ls -lh results.sarif
+          fi
+          echo ""
+          echo "Key checks evaluated:"
+          echo "  - Branch-Protection"
+          echo "  - CI-Tests"
+          echo "  - Code-Review"
+          echo "  - Dependency-Update-Tool"
+          echo "  - Maintained"
+          echo "  - SAST"
+          echo "  - Security-Policy"
+          echo "  - Token-Permissions"
+          echo "  - Vulnerabilities"
+          echo "  ...and more (18+ checks total)"
