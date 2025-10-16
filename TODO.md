@@ -132,7 +132,7 @@
 - [x] Task 5: Commit Phase 0 templates (3 commits made)
 - [x] Task 6: Create Phase 1 SBOM workflow templates (sbom.yml, osv.yml)
 - [x] Task 7: Create Phase 2 SAST workflow templates (codeql.yml, semgrep.yml, custom rules)
-- [ ] Task 8: Create Phase 3 secrets scanning templates
+- [x] Task 8: Create Phase 3 secrets scanning templates (gitleaks.yml, gitleaks.toml, hooks, install script)
 - [ ] Task 9: Create Phase 4 supply chain templates
 - [ ] Task 10: Create Phase 5 backdoor reconnaissance templates
 - [ ] Task 11: Create automation commands
