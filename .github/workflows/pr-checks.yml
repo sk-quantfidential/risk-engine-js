@@ -1,0 +1,124 @@
+# GitHub Actions: PR Validation Checks
+# Validates pull request titles and branch names against git quality standards
+#
+# Component: risk-engine-js (Cor Prime Risk Engine)
+# Last Updated: 2025-01-21
+
+name: 'PR Validation Checks'
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [ main, master ]
+
+env:
+  # Project code for this ecosystem
+  PROJECT_CODE: 'TSE'
+
+  # Epic number length (4 digits)
+  EPIC_DIGITS: '4'
+
+  # Allowed branch types
+  ALLOWED_TYPES: 'feature|fix|docs|style|refactor|test|chore|ci'
+
+jobs:
+  validate-pr:
+    name: 'Validate PR Title and Branch'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Validate branch name
+      run: |
+        echo "🔍 Validating branch name..."
+
+        # Get branch name from PR
+        BRANCH_NAME="${{ github.head_ref }}"
+        echo "Branch: $BRANCH_NAME"
+
+        # Pattern: type/epic-TSE-9999-milestone-behavior
+        BRANCH_REGEX="^(${{ env.ALLOWED_TYPES }})/epic-[A-Z]{2,4}-[0-9]{${{ env.EPIC_DIGITS }}}-.+"
+
+        if [[ ! "$BRANCH_NAME" =~ $BRANCH_REGEX ]]; then
+          echo "❌ ERROR: Branch name doesn't follow convention"
+          echo ""
+          echo "Expected format: type/epic-TSE-9999-milestone-behavior"
+          echo "Valid types: ${{ env.ALLOWED_TYPES }}"
+          echo ""
+          echo "Examples:"
+          echo "  feature/epic-TSE-0001-auth-implement-jwt-tokens"
+          echo "  fix/epic-TSE-0042-api-handle-timeout-errors"
+          echo "  chore/epic-TSE-0001-foundation-add-claude-configuration"
+          echo ""
+          echo "Your branch: $BRANCH_NAME"
+          echo ""
+          exit 1
+        fi
+
+        echo "✅ Branch name follows convention"
+
+    - name: Validate PR title
+      run: |
+        echo "🔍 Validating PR title..."
+
+        # Get PR title
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        echo "PR Title: $PR_TITLE"
+
+        # Conventional commit pattern: type(epic-TSE-9999): description
+        # Types: feat, fix, docs, style, refac, test, chore, ci
+        PR_TITLE_REGEX="^(feat|fix|docs|style|refac|test|chore|ci)\(epic-[A-Z]{2,4}-[0-9]{4}\): .+"
+
+        if [[ ! "$PR_TITLE" =~ $PR_TITLE_REGEX ]]; then
+          echo "❌ ERROR: PR title doesn't follow conventional commit format"
+          echo ""
+          echo "Expected format: type(epic-TSE-9999): description"
+          echo "Valid types: feat, fix, docs, style, refac, test, chore, ci"
+          echo ""
+          echo "Examples:"
+          echo "  feat(epic-TSE-0001): add user authentication"
+          echo "  fix(epic-TSE-0042): resolve timeout errors"
+          echo "  chore(epic-TSE-0001): add Claude configuration"
+          echo ""
+          echo "Your title: $PR_TITLE"
+          echo ""
+          exit 1
+        fi
+
+        echo "✅ PR title follows conventional commit format"
+
+    - name: Check PR documentation
+      run: |
+        echo "🔍 Checking for PR documentation..."
+
+        # Extract epic info from branch
+        BRANCH_NAME="${{ github.head_ref }}"
+
+        if [[ "$BRANCH_NAME" =~ epic-([A-Z]{2,4})-([0-9]{4}) ]]; then
+          EPIC_CODE="${BASH_REMATCH[1]}"
+          EPIC_NUM="${BASH_REMATCH[2]}"
+          EPIC_INFO="epic-${EPIC_CODE}-${EPIC_NUM}"
+
+          echo "Looking for PR docs matching: $EPIC_INFO"
+
+          # Check if docs/prs/ directory exists
+          if [ -d "docs/prs" ]; then
+            # Look for PR documentation
+            PR_DOCS=$(find docs/prs -name "*${EPIC_INFO}*.md" 2>/dev/null || true)
+
+            if [ -n "$PR_DOCS" ]; then
+              echo "✅ Found PR documentation:"
+              echo "$PR_DOCS"
+            else
+              echo "⚠️  Warning: No PR documentation found in docs/prs/"
+              echo "   Expected file matching: *${EPIC_INFO}*.md"
+              echo "   This is recommended but not required"
+            fi
+          else
+            echo "⚠️  docs/prs/ directory not found (optional)"
+          fi
+        else
+          echo "⚠️  Could not extract epic info from branch name"
+        fi
