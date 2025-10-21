@@ -10,7 +10,6 @@
  * Run: npm test infrastructure/security/outbound-allowlist.test.ts
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   isAllowedUrl,
   assertAllowedUrl,
@@ -95,13 +94,13 @@ describe('outbound-allowlist', () => {
       addAllowedHost('api.example.com');
       addAllowedHost('cdn.example.com');
 
-      try {
+      expect(() => {
         assertAllowedUrl('https://evil.com');
-        fail('Should have thrown');
-      } catch (e: any) {
-        expect(e.message).toContain('api.example.com');
-        expect(e.message).toContain('cdn.example.com');
-      }
+      }).toThrow(/api.example.com/);
+
+      expect(() => {
+        assertAllowedUrl('https://evil.com');
+      }).toThrow(/cdn.example.com/);
     });
 
     it('should handle URL objects', () => {
