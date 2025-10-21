@@ -45,7 +45,7 @@ if (typeof process !== 'undefined' && process.env) {
 }
 
 // Add known safe domains (configure these for your project)
-const knownSafeDomains = [
+const knownSafeDomains: string[] = [
   // Example: Add your approved external APIs
   // 'api.example.com',
   // 'cdn.example.com',

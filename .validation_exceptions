@@ -1,0 +1,22 @@
+# Validation Exceptions
+# Files/patterns to exclude from validation checks
+# Add one path or glob pattern per line
+
+# Node.js / Next.js
+node_modules/**
+.next/**
+out/**
+build/**
+dist/**
+coverage/**
+
+# Dependencies
+package-lock.json
+yarn.lock
+
+# IDE
+.vscode/**
+.idea/**
+
+# OS
+.DS_Store

@@ -201,7 +201,7 @@ export function LoanEditModal({ loan, isOpen, onClose, onSave }: LoanEditModalPr
               </label>
               <select
                 value={formData.ratingTier}
-                onChange={(e) => setFormData({ ...formData, ratingTier: e.target.value as 'BBB' | 'A' | 'AA' })}
+                onChange={(e) => setFormData({ ...formData, ratingTier: e.target.value as RatingTier })}
                 className="w-full bg-background-tertiary border border-border rounded px-4 py-2 font-mono text-text-primary focus:outline-none focus:border-primary"
               >
                 <option value="BBB">BBB</option>

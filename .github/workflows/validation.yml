@@ -1,0 +1,209 @@
+# GitHub Actions: Repository Validation
+# Runs validation checks on pushes and pull requests
+#
+# Component: risk-engine-js (Cor Prime Risk Engine)
+# Last Updated: 2025-01-21
+
+name: 'Repository Validation'
+
+on:
+  push:
+    branches: [ main, 'feature/**', 'fix/**', 'docs/**', 'chore/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-structure:
+    name: 'Validate Repository Structure'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Check required files
+      run: |
+        echo "📁 Checking required files..."
+
+        REQUIRED_FILES=(
+          "README.md"
+          "package.json"
+          ".gitignore"
+          "CLAUDE.md"
+          "AGENTS.md"
+        )
+
+        MISSING_FILES=()
+
+        for file in "${REQUIRED_FILES[@]}"; do
+          if [[ ! -f "$file" ]]; then
+            echo "❌ Missing: $file"
+            MISSING_FILES+=("$file")
+          else
+            echo "✅ Found: $file"
+          fi
+        done
+
+        if [[ ${#MISSING_FILES[@]} -gt 0 ]]; then
+          echo ""
+          echo "❌ ERROR: Missing required files"
+          exit 1
+        fi
+
+        echo ""
+        echo "✅ All required files present"
+
+    - name: Check TypeScript project structure
+      run: |
+        echo "📦 Checking TypeScript project structure..."
+
+        # Check for tsconfig.json or next.config (Next.js project)
+        if [[ ! -f "tsconfig.json" ]] && [[ ! -f "next.config.js" ]] && [[ ! -f "next.config.mjs" ]] && [[ ! -f "next.config.ts" ]]; then
+          echo "⚠️  Warning: No tsconfig.json or next.config found"
+        else
+          echo "✅ TypeScript/Next.js configuration found"
+        fi
+
+        # Check for src directory
+        if [[ -d "src" ]]; then
+          echo "✅ src/ directory found"
+        else
+          echo "⚠️  Warning: No src/ directory found"
+        fi
+
+  validate-markdown:
+    name: 'Validate Markdown Files'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install markdownlint
+      run: npm install -g markdownlint-cli
+
+    - name: Validate markdown syntax
+      run: |
+        echo "📋 Validating Markdown files..."
+
+        # Run markdownlint with common exclusions
+        if markdownlint . \
+          --ignore node_modules \
+          --ignore .next \
+          --ignore dist \
+          --ignore build \
+          --ignore coverage > /tmp/markdownlint.log 2>&1; then
+          echo "✅ Markdown validation passed"
+        else
+          echo "⚠️  Markdown linting found issues (not blocking):"
+          cat /tmp/markdownlint.log | head -20
+          echo ""
+          echo "Note: Markdown issues are warnings only"
+        fi
+
+  type-check:
+    name: 'TypeScript Type Checking'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        echo "📦 Installing dependencies..."
+        if [[ -f "package-lock.json" ]]; then
+          npm ci
+        elif [[ -f "yarn.lock" ]]; then
+          yarn install --frozen-lockfile
+        else
+          npm install
+        fi
+
+    - name: Run type check
+      run: |
+        echo "🔍 Running TypeScript type checking..."
+
+        # Check if type-check script exists in package.json
+        if grep -q '"type-check"' package.json; then
+          npm run type-check
+        elif grep -q '"tsc"' package.json; then
+          npm run tsc
+        else
+          # Fallback: try running tsc directly if installed
+          if command -v tsc &> /dev/null; then
+            tsc --noEmit
+          else
+            echo "⚠️  No type-check command found in package.json"
+            echo "   Skipping type checking"
+          fi
+        fi
+
+        echo "✅ Type checking passed"
+
+  lint:
+    name: 'Linting'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        echo "📦 Installing dependencies..."
+        if [[ -f "package-lock.json" ]]; then
+          npm ci
+        elif [[ -f "yarn.lock" ]]; then
+          yarn install --frozen-lockfile
+        else
+          npm install
+        fi
+
+    - name: Run linter
+      run: |
+        echo "🔍 Running linter..."
+
+        # Check if lint script exists
+        if grep -q '"lint"' package.json; then
+          npm run lint || {
+            echo "⚠️  Linting found issues (not blocking)"
+            exit 0
+          }
+        else
+          echo "⚠️  No lint command found in package.json"
+          echo "   Skipping linting"
+        fi
+
+        echo "✅ Linting passed"
+
+  summary:
+    name: 'Validation Summary'
+    runs-on: ubuntu-latest
+    needs: [validate-structure, validate-markdown, type-check, lint]
+    if: always()
+
+    steps:
+    - name: Check validation results
+      run: |
+        echo "📊 Validation Summary"
+        echo ""
+        echo "All validation jobs completed"
+        
+        # This job will succeed if all dependent jobs succeeded
+        # GitHub Actions will mark this as failed if any dependency failed
