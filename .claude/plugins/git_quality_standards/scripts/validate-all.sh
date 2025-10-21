@@ -229,7 +229,7 @@ fi
 # CHECK 7: Markdown linting configuration
 # ============================================================================
 echo ""
-echo -e "${YELLOW}[7/7] Checking markdown linting configuration...${NC}"
+echo -e "${YELLOW}[7/8] Checking markdown linting configuration...${NC}"
 
 if [[ ! -f ".markdownlint.json" ]]; then
   echo -e "${YELLOW}⚠️  .markdownlint.json not found (optional)${NC}"
@@ -266,6 +266,37 @@ if command -v markdownlint &> /dev/null; then
   fi
 else
   echo -e "${BLUE}ℹ️  markdownlint not installed, skipping markdown validation${NC}"
+fi
+
+# ============================================================================
+# CHECK 8: TypeScript Type Checking
+# ============================================================================
+echo ""
+echo -e "${YELLOW}[8/8] Running TypeScript type checking...${NC}"
+
+if [[ ! -f "tsconfig.json" ]] && [[ ! -f "package.json" ]]; then
+  echo -e "${BLUE}ℹ️  No TypeScript configuration found, skipping type check${NC}"
+else
+  # Check if type-check script exists in package.json
+  if [[ -f "package.json" ]] && grep -q '"type-check"' package.json; then
+    if npm run type-check > /tmp/typecheck.log 2>&1; then
+      echo -e "${GREEN}✅ TypeScript type checking passed${NC}"
+    else
+      echo -e "${RED}❌ TypeScript type checking failed${NC}"
+      cat /tmp/typecheck.log | head -20
+      VALIDATION_ERRORS=$((VALIDATION_ERRORS + 1))
+    fi
+  elif command -v tsc &> /dev/null; then
+    if tsc --noEmit > /tmp/typecheck.log 2>&1; then
+      echo -e "${GREEN}✅ TypeScript type checking passed${NC}"
+    else
+      echo -e "${RED}❌ TypeScript type checking failed${NC}"
+      cat /tmp/typecheck.log | head -20
+      VALIDATION_ERRORS=$((VALIDATION_ERRORS + 1))
+    fi
+  else
+    echo -e "${YELLOW}⚠️  TypeScript compiler not available, skipping type check${NC}"
+  fi
 fi
 
 # ============================================================================
