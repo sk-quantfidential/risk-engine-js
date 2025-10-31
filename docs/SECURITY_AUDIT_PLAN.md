@@ -1,0 +1,46 @@
+# Security Audit Plan (CISO-Ready)
+
+Objective: Provide evidence-based assurance that this codebase has no backdoors/obfuscated channels, no injection/payload vectors, and no exploitable elevated processes. Deliver reproducible artifacts and controls mapping.
+
+## Phase 0 — Hygiene (this branch)
+- Improve .gitignore for env files, caches, logs.
+- Add CODEOWNERS and Dependabot to baseline supply-chain hygiene.
+- Lock installs via `npm ci` in CI.
+
+## Phase 1 — Inventory + SBOM
+- Generate SBOM: `syft dir:. -o json > sbom.json`; scan: `grype sbom:sbom.json`.
+- Artifact integrity: store checksums.
+
+## Phase 2 — SAST
+- CodeQL (JS/TS) + Semgrep (security suite + custom rules for: eval/new Function/child_process/vm, obfuscation markers, outbound host allowlist).
+- ESLint security rules.
+
+## Phase 3 — Secrets + History
+- Gitleaks full history + staged; add pre-commit hook to block future leaks.
+
+## Phase 4 — Supply Chain (SCA)
+- OSV-Scanner + npm audit + Dependabot PRs.
+
+## Phase 5 — Obfuscation/Backdoor Recon
+- Grep-based and Semgrep rules to flag: base64 blobs + exec chains, unicode homoglyphs, hidden networking, non-allowlisted fetch/URL usage.
+- Centralize outbound host allowlist.
+
+## Phase 6 — IaC/Cloud
+- Checkov/tfsec on Terraform: CF Access policies strict, no wildcards, reasonable sessions.
+
+## Phase 7 — Runtime Hardening
+- Security headers (CSP/HSTS/XCTO/Referrer/Permissions/XFO) via Next config/middleware.
+- Forbid dangerouslySetInnerHTML; input validation on handlers (Zod).
+
+## Phase 8 — Behavior Security Tests
+- Header assertions; fuzz form inputs; error handling (no stack traces).
+
+## Phase 9 — CI/CD & Repo Security
+- Require passing CodeQL/Semgrep/Gitleaks/OSV on PR.
+- Branch protection + CODEOWNERS + dependency review.
+
+## Phase 10 — Threat Modeling + Report
+- STRIDE on data flows; OWASP ASVS/Top-10 mapping; final report with evidence and residual risk.
+
+## Deliverables
+- SBOM + scans, SAST reports, secrets scans, SCA, IaC scans, header configs, tests, CI workflows, and final audit report.
