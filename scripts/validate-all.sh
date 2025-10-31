@@ -84,7 +84,7 @@ if [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "master" ]]; the
 else
     # Validate branch naming convention
     # Format: type/epic-XXX-9999-milestone-behavior
-    BRANCH_REGEX="^(feature|fix|docs|style|refactor|test|chore|ci)/epic-([A-Z]{2,4})-([0-9]{4})-(.+)"
+    BRANCH_REGEX="^(feature|fix|docs|style|refactor|test|chore|ci|security|spike)/epic-([A-Z]{2,4})-([0-9]{4})-(.+)"
 
     if [[ "$CURRENT_BRANCH" =~ $BRANCH_REGEX ]]; then
         echo -e "${GREEN}✅ Branch name follows convention: ${CURRENT_BRANCH}${NC}"

@@ -19,7 +19,7 @@ env:
   EPIC_DIGITS: '4'
 
   # Allowed branch types
-  ALLOWED_TYPES: 'feature|fix|docs|style|refactor|test|chore|ci'
+  ALLOWED_TYPES: 'feature|fix|docs|style|refactor|test|chore|ci|security|spike'
 
 jobs:
   validate-pr:
@@ -68,14 +68,14 @@ jobs:
         echo "PR Title: $PR_TITLE"
 
         # Conventional commit pattern: type(epic-TSE-9999): description
-        # Types: feat, fix, docs, style, refac, test, chore, ci
-        PR_TITLE_REGEX="^(feat|fix|docs|style|refac|test|chore|ci)\(epic-[A-Z]{2,4}-[0-9]{4}\): .+"
+        # Types: feat, fix, docs, style, refac, test, chore, ci, sec, spike
+        PR_TITLE_REGEX="^(feat|fix|docs|style|refac|test|chore|ci|sec|spike)\(epic-[A-Z]{2,4}-[0-9]{4}\): .+"
 
         if [[ ! "$PR_TITLE" =~ $PR_TITLE_REGEX ]]; then
           echo "❌ ERROR: PR title doesn't follow conventional commit format"
           echo ""
           echo "Expected format: type(epic-TSE-9999): description"
-          echo "Valid types: feat, fix, docs, style, refac, test, chore, ci"
+          echo "Valid types: feat, fix, docs, style, refac, test, chore, ci, sec, spike"
           echo ""
           echo "Examples:"
           echo "  feat(epic-TSE-0001): add user authentication"

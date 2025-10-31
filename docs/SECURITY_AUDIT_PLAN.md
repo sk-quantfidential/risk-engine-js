@@ -1,4 +1,3 @@
-% Security audit plan document.
 # Security Audit Plan (CISO-Ready)
 
 Objective: Provide evidence-based assurance that this codebase has no backdoors/obfuscated channels, no injection/payload vectors, and no exploitable elevated processes. Deliver reproducible artifacts and controls mapping.

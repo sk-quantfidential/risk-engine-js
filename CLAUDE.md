@@ -912,37 +912,37 @@ risk-engine-js/
 
 ### Medium Priority
 
-5. **Advanced Visualizations**
+1. **Advanced Visualizations**
    - Loss distribution histogram
    - 3D surface plot (correlation × scenario × VaR)
    - Drawdown distribution chart
 
-6. **Custom Scenario Builder**
+2. **Custom Scenario Builder**
    - UI to define custom scenarios
    - Save/load scenario library
    - Scenario templating
 
-7. **Backtesting Framework**
+3. **Backtesting Framework**
    - Historical P&L attribution
    - Model validation metrics
    - Out-of-sample testing
 
 ### Low Priority (Post-MVP)
 
-8. **Multi-Portfolio Management**
+1. **Multi-Portfolio Management**
    - Switch between portfolios
    - Portfolio comparison
    - Aggregate risk reporting
 
-9. **Real-Time Alerts**
+2. **Real-Time Alerts**
    - WebSocket integration
    - Email/SMS notifications
    - Configurable thresholds
 
-10. **User Authentication**
-    - JWT-based auth
-    - Role-based permissions
-    - Audit logging
+3. **User Authentication**
+   - JWT-based auth
+   - Role-based permissions
+   - Audit logging
 
 ---
 
