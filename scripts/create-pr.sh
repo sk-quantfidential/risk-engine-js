@@ -45,7 +45,7 @@ fi
 echo -e "${BLUE}Current branch: ${BRANCH}${NC}"
 
 # Check branch naming convention
-if ! [[ "$BRANCH" =~ ^(feature|fix|docs|style|refactor|test|chore|ci)/epic-[A-Z]{3}-[0-9]{4}-.+ ]]; then
+if ! [[ "$BRANCH" =~ ^(feature|fix|docs|style|refactor|test|chore|ci|security|spike)/epic-[A-Z]{3}-[0-9]{4}-.+ ]]; then
   echo -e "${YELLOW}⚠️  Warning: Branch name doesn't follow convention${NC}"
   echo "Expected: type/epic-XXX-9999-milestone-behavior"
   echo ""
@@ -119,6 +119,8 @@ case "$BRANCH_TYPE" in
   test) PR_PREFIX="test" ;;
   chore) PR_PREFIX="chore" ;;
   ci) PR_PREFIX="ci" ;;
+  security) PR_PREFIX="sec" ;;
+  spike) PR_PREFIX="spike" ;;
   *) PR_PREFIX="$BRANCH_TYPE" ;;
 esac
 
