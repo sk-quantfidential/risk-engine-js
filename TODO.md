@@ -44,11 +44,12 @@
 - [x] Package.json scripts (`secrets:scan`, `secrets:staged`, `secrets:install-hook`)
 - [x] PR documentation: `docs/prs/security-epic-TSE-0002-phase-3-secrets.md`
 
-**Phase 4: Supply Chain (SCA)** 🚧 IN PROGRESS
+**Phase 4: Supply Chain (SCA)** ✅ COMPLETED
 - [x] npm-audit workflow configured (`.github/workflows/npm-audit.yml`)
 - [x] Scorecard workflow configured (`.github/workflows/scorecards.yml`)
-- [ ] Supply chain policy enforcement
-- [ ] PR documentation pending
+- [x] Dependabot configuration (`.github/dependabot.yml` from Phase 0)
+- [x] Supply chain policy enforcement (`--audit-level=high` blocks High/Critical)
+- [x] PR documentation: `docs/prs/security-epic-TSE-0002-phase-4-supply-chain.md`
 
 **Phase 5: Backdoor Recon** 🚧 IN PROGRESS
 - [x] Backdoor recon workflow configured (`.github/workflows/backdoor-recon.yml`)

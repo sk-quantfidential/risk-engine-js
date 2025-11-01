@@ -40,6 +40,13 @@ Evidence:
 
 ## Phase 4 — Supply Chain (SCA)
 - OSV-Scanner + npm audit + Dependabot PRs.
+Status: COMPLETED
+Evidence:
+- CI workflow `.github/workflows/npm-audit.yml` with policy enforcement (`--audit-level=high`).
+- CI workflow `.github/workflows/scorecards.yml` (OpenSSF Scorecard, weekly scans).
+- Dependabot configuration `.github/dependabot.yml` (weekly updates, security labels).
+- Artifacts: npm-audit results (30-day retention), Scorecard SARIF (90-day retention).
+- PR documentation: `docs/prs/security-epic-TSE-0002-phase-4-supply-chain.md`.
 
 ## Phase 5 — Obfuscation/Backdoor Recon
 - Grep-based and Semgrep rules to flag: base64 blobs + exec chains, unicode homoglyphs, hidden networking, non-allowlisted fetch/URL usage.
