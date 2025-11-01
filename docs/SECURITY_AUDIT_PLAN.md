@@ -30,6 +30,13 @@ Evidence:
 
 ## Phase 3 — Secrets + History
 - Gitleaks full history + staged; add pre-commit hook to block future leaks.
+Status: COMPLETED
+Evidence:
+- CI workflow `.github/workflows/gitleaks.yml` configured (full history scan, 90-day retention).
+- Configuration `.gitleaks.toml` with baseline allowlist (node_modules, build artifacts, test files).
+- Pre-commit hook installer: `scripts/install-gitleaks-hook.sh` (auto-backup, graceful handling).
+- Package.json scripts: `secrets:scan`, `secrets:staged`, `secrets:install-hook`.
+- PR documentation: `docs/prs/security-epic-TSE-0002-phase-3-secrets.md`.
 
 ## Phase 4 — Supply Chain (SCA)
 - OSV-Scanner + npm audit + Dependabot PRs.

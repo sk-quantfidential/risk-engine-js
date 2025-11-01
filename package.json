@@ -13,7 +13,10 @@
     "test:coverage": "jest --coverage",
     "sbom:syft": "syft dir:. -o spdx-json=sbom.spdx.json",
     "scan:grype": "grype sbom:sbom.spdx.json -o table",
-    "scan:osv": "osv-scanner -r . || true"
+    "scan:osv": "osv-scanner -r . || true",
+    "secrets:scan": "gitleaks detect --no-banner --redact --report-format json --report-path gitleaks-local.json --verbose --config .gitleaks.toml",
+    "secrets:staged": "gitleaks protect --staged --no-banner --redact --verbose --config .gitleaks.toml",
+    "secrets:install-hook": "sh scripts/install-gitleaks-hook.sh"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.13",
