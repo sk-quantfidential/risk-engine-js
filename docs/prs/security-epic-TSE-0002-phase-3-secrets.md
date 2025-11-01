@@ -28,7 +28,7 @@
 - Baseline allowlist for false positive reduction
 - Excludes: node_modules, .next, dist, build, coverage, proto, test fixtures
 - Excludes: lock files (package-lock.json, yarn.lock, pnpm-lock.yaml)
-- Excludes: test files (*.test.ts, *.spec.js)
+- Excludes: test files (\*.test.ts, \*.spec.js)
 - Configurable for project-specific exceptions
 
 ### Pre-commit Hook Installation
@@ -658,4 +658,3 @@ Need help? See docs/SECURITY_AUDIT_PLAN.md (Phase 3)
 
 **Phase 3 Status**: ✅ COMPLETED
 **Evidence**: Gitleaks workflow configured, pre-commit hook installer created, package.json scripts added, local testing validated
-
