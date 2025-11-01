@@ -37,10 +37,12 @@
 - [x] Weekly scheduled CodeQL scans (Monday 6 AM UTC)
 - [x] PR documentation: `docs/prs/security-epic-TSE-0002-phase-2-sast.md`
 
-**Phase 3: Secrets & History** 🚧 IN PROGRESS
+**Phase 3: Secrets & History** ✅ COMPLETED
 - [x] Gitleaks workflow configured (`.github/workflows/gitleaks.yml`)
-- [ ] Pre-commit hook for secret detection
-- [ ] PR documentation pending
+- [x] Gitleaks configuration (`.gitleaks.toml` with baseline allowlist)
+- [x] Pre-commit hook installation script (`scripts/install-gitleaks-hook.sh`)
+- [x] Package.json scripts (`secrets:scan`, `secrets:staged`, `secrets:install-hook`)
+- [x] PR documentation: `docs/prs/security-epic-TSE-0002-phase-3-secrets.md`
 
 **Phase 4: Supply Chain (SCA)** 🚧 IN PROGRESS
 - [x] npm-audit workflow configured (`.github/workflows/npm-audit.yml`)
