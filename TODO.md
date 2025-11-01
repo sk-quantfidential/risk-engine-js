@@ -51,10 +51,12 @@
 - [x] Supply chain policy enforcement (`--audit-level=high` blocks High/Critical)
 - [x] PR documentation: `docs/prs/security-epic-TSE-0002-phase-4-supply-chain.md`
 
-**Phase 5: Backdoor Recon** 🚧 IN PROGRESS
+**Phase 5: Backdoor Recon** ✅ COMPLETED
 - [x] Backdoor recon workflow configured (`.github/workflows/backdoor-recon.yml`)
-- [ ] Custom detection rules
-- [ ] PR documentation pending
+- [x] Grep reconnaissance patterns (obfuscation markers, hidden networking)
+- [x] Semgrep extended rules 5-9 in `.semgrep/custom.yml` (Phase 2)
+- [x] Weekly scheduled scans (Thursday 7 AM UTC)
+- [x] PR documentation: `docs/prs/security-epic-TSE-0002-phase-5-backdoor-recon.md`
 
 **Phases 6-10**: Planned (IaC, Runtime Hardening, Behavior Tests, CI/CD Security, Threat Modeling)
 

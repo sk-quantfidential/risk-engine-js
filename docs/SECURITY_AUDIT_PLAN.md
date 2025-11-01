@@ -51,6 +51,13 @@ Evidence:
 ## Phase 5 — Obfuscation/Backdoor Recon
 - Grep-based and Semgrep rules to flag: base64 blobs + exec chains, unicode homoglyphs, hidden networking, non-allowlisted fetch/URL usage.
 - Centralize outbound host allowlist.
+Status: COMPLETED
+Evidence:
+- CI workflow `.github/workflows/backdoor-recon.yml` (grep reconnaissance, weekly Thursday scans).
+- Semgrep extended rules 5-9 in `.semgrep/custom.yml` (long-base64-blob, unicode-homoglyphs, external-axios/websocket, networking-primitives).
+- Base rules 1-4 (Phase 2) + Extended rules 5-9 (Phase 5) = 9 total Semgrep rules.
+- Patterns: obfuscation markers (eval, Function, base64), hidden networking (http/net/ws).
+- PR documentation: `docs/prs/security-epic-TSE-0002-phase-5-backdoor-recon.md`.
 
 ## Phase 6 — IaC/Cloud
 - Checkov/tfsec on Terraform: CF Access policies strict, no wildcards, reasonable sessions.
