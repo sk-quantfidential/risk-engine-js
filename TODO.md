@@ -27,11 +27,15 @@
 - [x] CI workflows: `.github/workflows/sbom.yml`, `.github/workflows/osv.yml`
 - [x] PR documentation: `docs/prs/security-epic-TSE-0002-phase-1-inventory-and-sbom.md`
 
-**Phase 2: SAST** 🚧 IN PROGRESS
+**Phase 2: SAST** ✅ COMPLETED
 - [x] CodeQL workflow configured (`.github/workflows/codeql.yml`)
 - [x] Semgrep workflow configured (`.github/workflows/semgrep.yml`)
-- [ ] PR documentation pending
-- [ ] Custom Semgrep rules for JS/TS security patterns
+- [x] Custom Semgrep rules (`.semgrep/custom.yml` - 4 base rules)
+- [x] CodeQL query suite: `security-and-quality` (200+ security rules)
+- [x] Semgrep rulesets: `p/ci`, `p/javascript`, `p/owasp-top-ten`
+- [x] SARIF artifact uploads (30-day retention)
+- [x] Weekly scheduled CodeQL scans (Monday 6 AM UTC)
+- [x] PR documentation: `docs/prs/security-epic-TSE-0002-phase-2-sast.md`
 
 **Phase 3: Secrets & History** 🚧 IN PROGRESS
 - [x] Gitleaks workflow configured (`.github/workflows/gitleaks.yml`)
@@ -55,7 +59,8 @@
 - SBOM artifacts with checksums (90-day retention)
 - Grype vulnerability scan results (JSON + SARIF)
 - OSV scanner results
-- CodeQL/Semgrep SARIF results (pending initial runs)
+- CodeQL SARIF results (30-day retention)
+- Semgrep SARIF results (30-day retention)
 
 ---
 
