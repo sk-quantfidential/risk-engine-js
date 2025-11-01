@@ -19,6 +19,14 @@ Evidence:
 ## Phase 2 — SAST
 - CodeQL (JS/TS) + Semgrep (security suite + custom rules for: eval/new Function/child_process/vm, obfuscation markers, outbound host allowlist).
 - ESLint security rules.
+Status: COMPLETED
+Evidence:
+- CI workflows `.github/workflows/codeql.yml`, `.github/workflows/semgrep.yml` added.
+- Custom Semgrep rules in `.semgrep/custom.yml` (4 base rules: no-eval-new-function, no-node-exec-primitives, disallow-external-fetch-hosts, suspicious-base64-decode).
+- CodeQL query suite: `security-and-quality` (200+ rules).
+- Semgrep rulesets: `p/ci`, `p/javascript`, `p/owasp-top-ten`.
+- Artifacts: CodeQL + Semgrep SARIF results uploaded per run (30-day retention).
+- Weekly scheduled CodeQL scans (Monday 6 AM UTC).
 
 ## Phase 3 — Secrets + History
 - Gitleaks full history + staged; add pre-commit hook to block future leaks.
