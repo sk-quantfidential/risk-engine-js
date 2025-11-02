@@ -4,7 +4,7 @@
  */
 
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
-import { PriceBar } from './MarketDataService';
+import { PriceBar } from '@/application/ports/IMarketDataProvider';
 
 // Coinbase Advanced Trade API endpoint
 const COINBASE_API_BASE = 'https://api.exchange.coinbase.com';

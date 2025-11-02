@@ -1,12 +1,34 @@
 'use client';
 
+/**
+ * Market Data Provider (Presentation Layer)
+ *
+ * React Context provider that delegates to Application Layer use cases.
+ * Contains NO business logic - only state management and use case orchestration.
+ *
+ * Clean Architecture: Presentation layer calls use cases, never directly
+ * accesses infrastructure or domain layers.
+ */
+
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { MarketDataService, MarketDataSnapshot } from '@/infrastructure/adapters/MarketDataService';
+import { MarketDataSnapshot } from '@/application/ports/IMarketDataProvider';
 import { Portfolio } from '@/domain/entities/Portfolio';
 import { Loan } from '@/domain/entities/Loan';
-import { LocalStorageRepository } from '@/infrastructure/persistence/LocalStorageRepository';
-import { SampleDataGenerator } from '@/infrastructure/adapters/SampleDataGenerator';
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
+
+// Infrastructure Layer (implements port interfaces)
+import { MarketDataService } from '@/infrastructure/adapters/MarketDataService';
+import { LocalStorageRepository } from '@/infrastructure/persistence/LocalStorageRepository';
+
+// Application Layer (use cases)
+import { LoadPortfolioUseCase } from '@/application/use-cases/LoadPortfolioUseCase';
+import { UpdateLoanUseCase } from '@/application/use-cases/UpdateLoanUseCase';
+import { UpdateMarketPricesUseCase } from '@/application/use-cases/UpdateMarketPricesUseCase';
+import { ImportCSVDataUseCase } from '@/application/use-cases/ImportCSVDataUseCase';
+import { LoadPortfolioRequest } from '@/application/dtos/LoadPortfolioDTOs';
+import { UpdateLoanRequest } from '@/application/dtos/UpdateLoanDTOs';
+import { UpdateMarketPricesRequest } from '@/application/dtos/UpdateMarketPricesDTOs';
+import { ImportCSVDataRequest } from '@/application/dtos/ImportCSVDataDTOs';
 
 interface MarketDataContextValue {
   marketData: MarketDataSnapshot | null;
@@ -35,44 +57,65 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
   const [marketData, setMarketData] = useState<MarketDataSnapshot | null>(null);
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [isLive, setIsLive] = useState(false);
+
+  // Infrastructure Layer (adapters)
   const marketDataServiceRef = useRef<MarketDataService | null>(null);
   const repositoryRef = useRef<LocalStorageRepository | null>(null);
+
+  // Application Layer (use cases)
+  const loadPortfolioUseCaseRef = useRef<LoadPortfolioUseCase | null>(null);
+  const updateLoanUseCaseRef = useRef<UpdateLoanUseCase | null>(null);
+  const updatePricesUseCaseRef = useRef<UpdateMarketPricesUseCase | null>(null);
+  const importCSVUseCaseRef = useRef<ImportCSVDataUseCase | null>(null);
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Initialize services
+  // Initialize services and use cases
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Initialize market data service
+    // Initialize infrastructure adapters
     if (!marketDataServiceRef.current) {
       marketDataServiceRef.current = new MarketDataService();
     }
-
-    // Initialize repository
     if (!repositoryRef.current) {
       repositoryRef.current = new LocalStorageRepository();
     }
 
-    // Load or create portfolio
-    let loadedPortfolio = repositoryRef.current.loadPortfolio();
-    if (!loadedPortfolio) {
-      // Generate sample data
-      loadedPortfolio = SampleDataGenerator.generateSamplePortfolio();
-      repositoryRef.current.savePortfolio(loadedPortfolio);
+    // Initialize use cases (Dependency Injection)
+    if (!loadPortfolioUseCaseRef.current) {
+      loadPortfolioUseCaseRef.current = new LoadPortfolioUseCase(
+        repositoryRef.current
+      );
     }
-    setPortfolio(loadedPortfolio);
+    if (!updateLoanUseCaseRef.current) {
+      updateLoanUseCaseRef.current = new UpdateLoanUseCase(
+        repositoryRef.current
+      );
+    }
+    if (!updatePricesUseCaseRef.current) {
+      updatePricesUseCaseRef.current = new UpdateMarketPricesUseCase(
+        marketDataServiceRef.current
+      );
+    }
+    if (!importCSVUseCaseRef.current) {
+      importCSVUseCaseRef.current = new ImportCSVDataUseCase(
+        marketDataServiceRef.current,
+        marketDataServiceRef.current // Also implements IPriceHistoryService
+      );
+    }
 
-    // Get initial prices
-    const initialPrices = marketDataServiceRef.current.getCurrentPrices();
-    setMarketData({
-      timestamp: new Date(),
-      prices: initialPrices,
-      returns: {
-        [AssetType.BTC]: 0,
-        [AssetType.ETH]: 0,
-        [AssetType.SOL]: 0,
-      },
-    });
+    // Use LoadPortfolioUseCase to load or create portfolio
+    const response = loadPortfolioUseCaseRef.current.execute(
+      new LoadPortfolioRequest()
+    );
+    if (response.success && response.portfolio) {
+      setPortfolio(response.portfolio);
+    }
+
+    // Get initial market snapshot
+    const initialSnapshot = marketDataServiceRef.current.getCurrentSnapshot();
+    setMarketData(initialSnapshot);
   }, []);
 
   // Real-time price updates via simulated SSE
@@ -97,73 +140,59 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
   };
 
   const refreshPortfolio = () => {
-    if (repositoryRef.current) {
-      const loadedPortfolio = repositoryRef.current.loadPortfolio();
-      if (loadedPortfolio) {
-        setPortfolio(loadedPortfolio);
-      }
+    if (!loadPortfolioUseCaseRef.current) return;
+
+    const response = loadPortfolioUseCaseRef.current.execute(
+      new LoadPortfolioRequest()
+    );
+    if (response.success && response.portfolio) {
+      setPortfolio(response.portfolio);
     }
   };
 
   const updateLoan = (updatedLoan: Loan) => {
-    if (repositoryRef.current && portfolio) {
-      // Update loan in repository
-      repositoryRef.current.saveLoan(updatedLoan);
+    if (!updateLoanUseCaseRef.current) return;
 
-      // Create new portfolio with updated loan
-      const updatedLoans = portfolio.loans.map(loan =>
-        loan.id === updatedLoan.id ? updatedLoan : loan
-      );
-      const updatedPortfolio = new Portfolio(updatedLoans, portfolio.riskCapitalUSD);
+    // Use UpdateLoanUseCase instead of direct business logic
+    const response = updateLoanUseCaseRef.current.execute(
+      new UpdateLoanRequest(updatedLoan)
+    );
 
-      // Save and update state
-      repositoryRef.current.savePortfolio(updatedPortfolio);
-      setPortfolio(updatedPortfolio);
+    if (response.success && response.portfolio) {
+      setPortfolio(response.portfolio);
+    } else {
+      console.error('Failed to update loan:', response.errorMessage);
     }
   };
 
   const updatePrices = (newPrices: Record<AssetType, number>) => {
-    // Update prices in market data service if the method exists
-    if (marketDataServiceRef.current) {
-      // Try to use setCurrentPrices if available, otherwise directly update
-      if (typeof marketDataServiceRef.current.setCurrentPrices === 'function') {
-        marketDataServiceRef.current.setCurrentPrices(newPrices);
-      } else {
-        // Fallback: directly update the private property (TypeScript will complain but it will work)
-        (marketDataServiceRef.current as any).currentPrices = { ...newPrices };
-      }
-    }
+    if (!updatePricesUseCaseRef.current) return;
 
-    // Update market data snapshot
-    setMarketData({
-      timestamp: new Date(),
-      prices: newPrices,
-      returns: marketData?.returns || {
-        [AssetType.BTC]: 0,
-        [AssetType.ETH]: 0,
-        [AssetType.SOL]: 0,
-      },
-    });
+    // Use UpdateMarketPricesUseCase instead of direct manipulation
+    const response = updatePricesUseCaseRef.current.execute(
+      new UpdateMarketPricesRequest(newPrices)
+    );
+
+    if (response.success) {
+      setMarketData(response.snapshot);
+    }
   };
 
   const reloadWithCSV = (csvData: Record<AssetType, string>) => {
-    // Create new market data service with CSV data
-    marketDataServiceRef.current = new MarketDataService(csvData);
+    if (!importCSVUseCaseRef.current) return;
 
-    // Get new prices
-    const newPrices = marketDataServiceRef.current.getCurrentPrices();
-    setMarketData({
-      timestamp: new Date(),
-      prices: newPrices,
-      returns: {
-        [AssetType.BTC]: 0,
-        [AssetType.ETH]: 0,
-        [AssetType.SOL]: 0,
-      },
-    });
+    // Use ImportCSVDataUseCase instead of direct service calls
+    const response = importCSVUseCaseRef.current.execute(
+      new ImportCSVDataRequest(csvData)
+    );
 
-    // Force re-render of portfolio with new prices
-    refreshPortfolio();
+    if (response.success) {
+      setMarketData(response.snapshot);
+      // Force re-render of portfolio with new prices
+      refreshPortfolio();
+    } else {
+      console.error('CSV import failed:', response.errorMessage);
+    }
   };
 
   const value: MarketDataContextValue = {

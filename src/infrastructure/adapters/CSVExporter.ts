@@ -4,7 +4,8 @@
  */
 
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
-import { MarketDataService, PriceBar } from './MarketDataService';
+import { PriceBar } from '@/application/ports/IMarketDataProvider';
+import { MarketDataService } from './MarketDataService';
 
 export class CSVExporter {
   static exportToCSV(asset: AssetType, history: PriceBar[]): string {

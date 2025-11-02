@@ -1,18 +1,20 @@
 /**
- * Market Data Service
- * Generates synthetic price data with realistic correlations and volatility
+ * Market Data Service (Infrastructure Adapter)
+ *
+ * Implements IMarketDataProvider port interface.
+ * Generates synthetic price data with realistic correlations and volatility.
+ *
+ * Clean Architecture: Infrastructure layer implements port interfaces
+ * defined in the Application layer.
  */
 
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
-
-export interface PriceBar {
-  timestamp: Date;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-}
+import {
+  IMarketDataProvider,
+  PriceBar,
+  MarketDataSnapshot
+} from '@/application/ports/IMarketDataProvider';
+import { IPriceHistoryService } from '@/application/ports/IPriceHistoryService';
 
 export interface CorrelationMatrix {
   BTC_ETH: number;
@@ -20,13 +22,7 @@ export interface CorrelationMatrix {
   ETH_SOL: number;
 }
 
-export interface MarketDataSnapshot {
-  timestamp: Date;
-  prices: Record<AssetType, number>;
-  returns: Record<AssetType, number>;
-}
-
-export class MarketDataService {
+export class MarketDataService implements IMarketDataProvider, IPriceHistoryService {
   private priceHistory: Map<AssetType, PriceBar[]> = new Map();
   private currentPrices: Record<AssetType, number>;
   private correlationMatrix: CorrelationMatrix;
@@ -55,8 +51,9 @@ export class MarketDataService {
 
   /**
    * Load historical price data from CSV strings
+   * Implements IPriceHistoryService
    */
-  private loadFromCSV(csvData: Record<AssetType, string>): void {
+  loadFromCSV(csvData: Record<AssetType, string>): void {
     for (const asset of Object.values(AssetType)) {
       const csv = csvData[asset];
       if (!csv) continue;
@@ -94,10 +91,10 @@ export class MarketDataService {
   }
 
   /**
-   * Generate 4 years of synthetic hourly price data
-   * Uses correlated geometric Brownian motion with target ending prices
+   * Generate synthetic historical price data
+   * Implements IPriceHistoryService
    */
-  private generateHistoricalData(): void {
+  generateHistoricalData(): void {
     const hoursIn4Years = 4 * 365 * 24;  // ~35,040 hours
     const startDate = new Date();
     startDate.setFullYear(startDate.getFullYear() - 4);
@@ -226,6 +223,15 @@ export class MarketDataService {
 
   /**
    * Get historical price data for an asset
+   * Implements IPriceHistoryService and IMarketDataProvider
+   */
+  getPriceHistory(asset: AssetType): PriceBar[] {
+    return this.priceHistory.get(asset) || [];
+  }
+
+  /**
+   * Get historical price data for an asset (with optional limit)
+   * Helper method for internal use
    */
   getHistory(asset: AssetType, hoursBack?: number): PriceBar[] {
     const history = this.priceHistory.get(asset) || [];
@@ -237,13 +243,27 @@ export class MarketDataService {
 
   /**
    * Get current prices for all assets
+   * Implements IMarketDataProvider
    */
   getCurrentPrices(): Record<AssetType, number> {
     return { ...this.currentPrices };
   }
 
   /**
+   * Get a complete market data snapshot with prices and returns
+   * Implements IMarketDataProvider
+   */
+  getCurrentSnapshot(): MarketDataSnapshot {
+    return {
+      timestamp: new Date(),
+      prices: { ...this.currentPrices },
+      returns: { ...this.lastReturns }
+    };
+  }
+
+  /**
    * Set current prices manually (for price editing)
+   * Implements IMarketDataProvider
    */
   setCurrentPrices(prices: Record<AssetType, number>): void {
     this.currentPrices = { ...prices };
@@ -313,6 +333,15 @@ export class MarketDataService {
 
   /**
    * Calculate historical volatility (annualized)
+   * Implements IMarketDataProvider
+   */
+  calculateVolatility(asset: AssetType, windowDays: number): number {
+    const hoursBack = windowDays * 24;
+    return this.calculateHistoricalVolatility(asset, hoursBack);
+  }
+
+  /**
+   * Calculate historical volatility (annualized) - internal method
    */
   calculateHistoricalVolatility(asset: AssetType, hoursBack: number = 720): number {
     const history = this.getHistory(asset, hoursBack);
@@ -327,7 +356,16 @@ export class MarketDataService {
   }
 
   /**
-   * Calculate maximum drawdown over period
+   * Get the maximum drawdown for an asset over its history
+   * Implements IMarketDataProvider
+   */
+  getMaxDrawdown(asset: AssetType): number {
+    // Use entire history (365 days default)
+    return this.calculateMaxDrawdown(asset, 365 * 24);
+  }
+
+  /**
+   * Calculate maximum drawdown over period - internal method
    */
   calculateMaxDrawdown(asset: AssetType, hoursBack: number = 8760): number {
     const history = this.getHistory(asset, hoursBack);
@@ -391,5 +429,45 @@ export class MarketDataService {
 
   getCorrelationMatrix(): CorrelationMatrix {
     return { ...this.correlationMatrix };
+  }
+
+  /**
+   * Get price history for a specific date range
+   * Implements IPriceHistoryService
+   */
+  getHistoryRange(asset: AssetType, startDate: Date, endDate: Date): PriceBar[] {
+    const history = this.priceHistory.get(asset) || [];
+    return history.filter(bar =>
+      bar.timestamp >= startDate && bar.timestamp <= endDate
+    );
+  }
+
+  /**
+   * Check if historical data exists for an asset
+   * Implements IPriceHistoryService
+   */
+  hasHistory(asset: AssetType): boolean {
+    const history = this.priceHistory.get(asset);
+    return history !== undefined && history.length > 0;
+  }
+
+  /**
+   * Get the earliest timestamp in the historical data
+   * Implements IPriceHistoryService
+   */
+  getEarliestTimestamp(asset: AssetType): Date | null {
+    const history = this.priceHistory.get(asset);
+    if (!history || history.length === 0) return null;
+    return history[0].timestamp;
+  }
+
+  /**
+   * Get the latest timestamp in the historical data
+   * Implements IPriceHistoryService
+   */
+  getLatestTimestamp(asset: AssetType): Date | null {
+    const history = this.priceHistory.get(asset);
+    if (!history || history.length === 0) return null;
+    return history[history.length - 1].timestamp;
   }
 }

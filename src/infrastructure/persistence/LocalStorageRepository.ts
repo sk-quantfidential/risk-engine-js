@@ -1,10 +1,16 @@
 /**
- * LocalStorage Repository
- * Handles persistence of loans and portfolio data in browser storage
+ * LocalStorage Repository (Infrastructure Adapter)
+ *
+ * Implements IPortfolioRepository port interface.
+ * Handles persistence of loans and portfolio data in browser storage.
+ *
+ * Clean Architecture: Infrastructure layer implements port interfaces
+ * defined in the Application layer.
  */
 
 import { Portfolio } from '@/domain/entities/Portfolio';
 import { Loan } from '@/domain/entities/Loan';
+import { IPortfolioRepository } from '@/application/ports/IPortfolioRepository';
 
 const STORAGE_KEYS = {
   PORTFOLIO: 'risk-engine:portfolio',
@@ -13,11 +19,12 @@ const STORAGE_KEYS = {
   LAST_UPDATED: 'risk-engine:last-updated',
 };
 
-export class LocalStorageRepository {
+export class LocalStorageRepository implements IPortfolioRepository {
   /**
    * Save portfolio to localStorage
+   * Implements IPortfolioRepository
    */
-  savePortfolio(portfolio: Portfolio): void {
+  save(portfolio: Portfolio): void {
     try {
       const portfolioData = portfolio.toJSON();
       localStorage.setItem(STORAGE_KEYS.PORTFOLIO, JSON.stringify(portfolioData));
@@ -29,7 +36,35 @@ export class LocalStorageRepository {
   }
 
   /**
+   * Find portfolio by ID
+   * Implements IPortfolioRepository
+   * Note: Currently only supports single portfolio (MVP), so ID is ignored
+   */
+  findById(id: string): Portfolio | null {
+    return this.loadPortfolio();
+  }
+
+  /**
+   * Get all portfolios
+   * Implements IPortfolioRepository
+   * Note: Currently only supports single portfolio (MVP)
+   */
+  findAll(): Portfolio[] {
+    const portfolio = this.loadPortfolio();
+    return portfolio ? [portfolio] : [];
+  }
+
+  /**
+   * Delete portfolio by ID
+   * Implements IPortfolioRepository
+   */
+  delete(id: string): void {
+    this.clearAll();
+  }
+
+  /**
    * Load portfolio from localStorage
+   * Legacy method - prefer findById() or findAll()
    */
   loadPortfolio(): Portfolio | null {
     try {
@@ -68,7 +103,7 @@ export class LocalStorageRepository {
       }
 
       const updatedPortfolio = new Portfolio(updatedLoans, portfolio.riskCapitalUSD);
-      this.savePortfolio(updatedPortfolio);
+      this.save(updatedPortfolio);
     } catch (error) {
       console.error('Failed to save loan:', error);
       throw new Error('Failed to persist loan data');
@@ -87,7 +122,7 @@ export class LocalStorageRepository {
 
       const updatedLoans = portfolio.loans.filter(l => l.id !== loanId);
       const updatedPortfolio = new Portfolio(updatedLoans, portfolio.riskCapitalUSD);
-      this.savePortfolio(updatedPortfolio);
+      this.save(updatedPortfolio);
     } catch (error) {
       console.error('Failed to delete loan:', error);
       throw new Error('Failed to delete loan');
@@ -113,20 +148,22 @@ export class LocalStorageRepository {
   }
 
   /**
-   * Update risk capital
+   * Update risk capital for a portfolio
+   * Implements IPortfolioRepository
+   * Note: portfolioId ignored in MVP (single portfolio)
    */
-  updateRiskCapital(amountUSD: number): void {
+  updateRiskCapital(portfolioId: string, amountUSD: number): void {
     try {
       const portfolio = this.loadPortfolio();
       if (!portfolio) {
         // Create new portfolio with zero loans
         const newPortfolio = new Portfolio([], amountUSD);
-        this.savePortfolio(newPortfolio);
+        this.save(newPortfolio);
         return;
       }
 
       const updatedPortfolio = new Portfolio(portfolio.loans, amountUSD);
-      this.savePortfolio(updatedPortfolio);
+      this.save(updatedPortfolio);
     } catch (error) {
       console.error('Failed to update risk capital:', error);
       throw new Error('Failed to update risk capital');
