@@ -43,7 +43,7 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center space-x-3">
             <div className="text-2xl font-mono font-bold text-primary">
-              COR PRIME RISK ENGINE
+              CRYPTO LOAN RISK ENGINE
             </div>
             <div className="text-xs text-text-muted font-mono mt-1">
               v1.0 | LIVE

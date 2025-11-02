@@ -1,4 +1,4 @@
-# Cor Prime Risk Engine
+# Crypto Loan Risk Engine
 
 **World-class crypto loan portfolio risk management and portfolio optimization platform**
 
@@ -12,7 +12,7 @@
 
 ## 🎯 Overview
 
-The **Cor Prime Risk Engine** is a sophisticated risk management system for crypto-collateralized loan portfolios. Built with Next.js 15, TypeScript, and Clean Architecture principles, it provides institutional-grade risk analytics with real-time monitoring, scenario stress testing, and portfolio optimization.
+The **Crypto Loan Risk Engine** is a sophisticated risk management system for crypto-collateralized loan portfolios. Built with Next.js 15, TypeScript, and Clean Architecture principles, it provides institutional-grade risk analytics with real-time monitoring, scenario stress testing, and portfolio optimization.
 
 ### Key Features
 
