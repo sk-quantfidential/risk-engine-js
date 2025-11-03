@@ -16,7 +16,11 @@ import { Portfolio } from '@/domain/entities/Portfolio';
 import { Loan } from '@/domain/entities/Loan';
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
 
-// Infrastructure Layer (implements port interfaces)
+// Port Interfaces (Application Layer)
+import { IMarketDataProvider } from '@/application/ports/IMarketDataProvider';
+import { IPortfolioRepository } from '@/application/ports/IPortfolioRepository';
+
+// Infrastructure Layer (concrete implementations - used internally only)
 import { MarketDataService } from '@/infrastructure/adapters/MarketDataService';
 import { LocalStorageRepository } from '@/infrastructure/persistence/LocalStorageRepository';
 
@@ -31,11 +35,17 @@ import { UpdateLoanRequest } from '@/application/dtos/UpdateLoanDTOs';
 import { UpdateMarketPricesRequest } from '@/application/dtos/UpdateMarketPricesDTOs';
 import { ImportCSVDataRequest } from '@/application/dtos/ImportCSVDataDTOs';
 
+/**
+ * Market Data Context Value
+ *
+ * Clean Architecture: Exposes only port interfaces (IMarketDataProvider, IPortfolioRepository)
+ * to prevent Presentation layer from depending on Infrastructure implementations.
+ */
 interface MarketDataContextValue {
   marketData: MarketDataSnapshot | null;
   portfolio: Portfolio | null;
-  marketDataService: MarketDataService;
-  repository: LocalStorageRepository;
+  marketDataProvider: IMarketDataProvider;  // Port interface (not concrete type)
+  portfolioRepository: IPortfolioRepository; // Port interface (not concrete type)
   isLive: boolean;
   toggleLive: () => void;
   refreshPortfolio: () => void;
@@ -213,8 +223,9 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
   const value: MarketDataContextValue = {
     marketData,
     portfolio,
-    marketDataService: marketDataServiceRef.current!,
-    repository: repositoryRef.current!,
+    // Expose port interfaces only (hide concrete Infrastructure types)
+    marketDataProvider: marketDataServiceRef.current!,
+    portfolioRepository: repositoryRef.current!,
     isLive,
     toggleLive,
     refreshPortfolio,

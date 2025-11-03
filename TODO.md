@@ -93,10 +93,13 @@
   - Extended `getMaxDrawdown(asset, windowHours?)` with optional parameter
   - Updated MarketDataService to implement new port methods
   - Fixed presentation layer to use port methods (correlations/page, history/page, DrawdownLTVChart)
-- [ ] Phase 1.3: Hide Infrastructure from MarketDataProvider context
-  - Remove concrete MarketDataService and LocalStorageRepository from context value
-  - Expose only port interfaces (IMarketDataProvider, IPortfolioRepository)
-  - Update all consuming components to use port methods only
+- [x] Phase 1.3: Hide Infrastructure from MarketDataProvider context
+  - Changed context interface to expose `marketDataProvider: IMarketDataProvider` (not concrete MarketDataService)
+  - Changed context interface to expose `portfolioRepository: IPortfolioRepository` (not concrete LocalStorageRepository)
+  - Updated CSVExporter to accept IMarketDataProvider and use `getPriceHistory()` (port method)
+  - Updated AssetPricePanel props and usage to accept IMarketDataProvider
+  - Updated DrawdownLTVChart props and usage to accept IMarketDataProvider
+  - Updated all dashboard pages (page.tsx, drawdown, correlations, history) to use new property names
 - [ ] Phase 1.4: Update Presentation to use port methods via context
   - Audit all presentation components for Infrastructure leaks
   - Replace direct Infrastructure calls with port method calls

@@ -6,20 +6,20 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
 
 export default function HistoryPage() {
-  const { portfolio, marketDataService } = useMarketData();
+  const { portfolio, marketDataProvider } = useMarketData();
 
   const historicalData = useMemo(() => {
     if (!portfolio) return [];
 
     // Get 90 days of data, sampled every 6 hours
-    const history = marketDataService.getHistoryWindow(AssetType.BTC, 90 * 24);
+    const history = marketDataProvider.getHistoryWindow(AssetType.BTC, 90 * 24);
     const sampledHistory = history.filter((_, idx) => idx % 6 === 0);
 
     return sampledHistory.map(bar => {
       const prices = {
         [AssetType.BTC]: bar.close,
-        [AssetType.ETH]: marketDataService.getHistoryWindow(AssetType.ETH, 90 * 24)[Math.floor(sampledHistory.indexOf(bar) * 6)]?.close || 0,
-        [AssetType.SOL]: marketDataService.getHistoryWindow(AssetType.SOL, 90 * 24)[Math.floor(sampledHistory.indexOf(bar) * 6)]?.close || 0,
+        [AssetType.ETH]: marketDataProvider.getHistoryWindow(AssetType.ETH, 90 * 24)[Math.floor(sampledHistory.indexOf(bar) * 6)]?.close || 0,
+        [AssetType.SOL]: marketDataProvider.getHistoryWindow(AssetType.SOL, 90 * 24)[Math.floor(sampledHistory.indexOf(bar) * 6)]?.close || 0,
       };
 
       const metrics = portfolio.calculateMetrics(prices);
@@ -33,13 +33,13 @@ export default function HistoryPage() {
         collateralValue: metrics.totalCollateralValueUSD / 1_000_000,
       };
     });
-  }, [portfolio, marketDataService]);
+  }, [portfolio, marketDataProvider]);
 
   if (!portfolio) {
     return <div className="text-center text-text-secondary font-mono">Loading...</div>;
   }
 
-  const maxDrawdown = marketDataService.getMaxDrawdown(AssetType.BTC, 90 * 24);
+  const maxDrawdown = marketDataProvider.getMaxDrawdown(AssetType.BTC, 90 * 24);
 
   return (
     <div className="space-y-6">

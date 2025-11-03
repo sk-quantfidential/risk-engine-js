@@ -6,7 +6,7 @@ import { useState, useMemo } from 'react';
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
 
 export default function CorrelationsPage() {
-  const { portfolio, marketData, marketDataService } = useMarketData();
+  const { portfolio, marketData, marketDataProvider } = useMarketData();
 
   // Correlation overrides (user can adjust via sliders)
   const [btcEthCorr, setBtcEthCorr] = useState(0.82);
@@ -23,11 +23,11 @@ export default function CorrelationsPage() {
   // Calculate historical correlations
   const historicalCorrelations = useMemo(() => {
     return {
-      BTC_ETH: marketDataService.calculateHistoricalCorrelation(AssetType.BTC, AssetType.ETH, 720),
-      BTC_SOL: marketDataService.calculateHistoricalCorrelation(AssetType.BTC, AssetType.SOL, 720),
-      ETH_SOL: marketDataService.calculateHistoricalCorrelation(AssetType.ETH, AssetType.SOL, 720),
+      BTC_ETH: marketDataProvider.calculateHistoricalCorrelation(AssetType.BTC, AssetType.ETH, 720),
+      BTC_SOL: marketDataProvider.calculateHistoricalCorrelation(AssetType.BTC, AssetType.SOL, 720),
+      ETH_SOL: marketDataProvider.calculateHistoricalCorrelation(AssetType.ETH, AssetType.SOL, 720),
     };
-  }, [marketDataService]);
+  }, [marketDataProvider]);
 
   // Simulate portfolio metrics with adjusted correlations
   const adjustedMetrics = useMemo(() => {

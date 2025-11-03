@@ -5,7 +5,7 @@ import { DrawdownLTVChart } from '@/components/analytics/DrawdownLTVChart';
 import { useState } from 'react';
 
 export default function DrawdownPage() {
-  const { portfolio, marketData, marketDataService } = useMarketData();
+  const { portfolio, marketData, marketDataProvider } = useMarketData();
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
 
   if (!portfolio || !marketData) {
@@ -85,7 +85,7 @@ export default function DrawdownPage() {
       <DrawdownLTVChart
         loan={selectedLoan}
         currentPrice={currentPrice}
-        marketDataService={marketDataService}
+        marketDataProvider={marketDataProvider}
       />
     </div>
   );

@@ -3,7 +3,7 @@ import { AssetType } from '@/domain/value-objects/CryptoAsset';
 import { PriceEditModal } from './PriceEditModal';
 import { CSVImportModal } from './CSVImportModal';
 import { CoinbaseImportModal } from './CoinbaseImportModal';
-import { MarketDataService } from '@/infrastructure/adapters/MarketDataService';
+import { IMarketDataProvider } from '@/application/ports/IMarketDataProvider';
 import { CSVExporter } from '@/infrastructure/adapters/CSVExporter';
 
 interface AssetPricePanelProps {
@@ -12,10 +12,10 @@ interface AssetPricePanelProps {
   isLive: boolean;
   onPriceUpdate?: (newPrices: Record<AssetType, number>) => void;
   onCSVImport?: (csvData: Record<AssetType, string>) => void;
-  marketDataService?: MarketDataService;
+  marketDataProvider?: IMarketDataProvider;  // Port interface instead of concrete type
 }
 
-export function AssetPricePanel({ prices, returns, isLive, onPriceUpdate, onCSVImport, marketDataService }: AssetPricePanelProps) {
+export function AssetPricePanel({ prices, returns, isLive, onPriceUpdate, onCSVImport, marketDataProvider }: AssetPricePanelProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isCoinbaseModalOpen, setIsCoinbaseModalOpen] = useState(false);
@@ -53,8 +53,8 @@ export function AssetPricePanel({ prices, returns, isLive, onPriceUpdate, onCSVI
   };
 
   const handleExportCSV = () => {
-    if (marketDataService) {
-      CSVExporter.exportAllAssets(marketDataService);
+    if (marketDataProvider) {
+      CSVExporter.exportAllAssets(marketDataProvider);
     }
   };
 
