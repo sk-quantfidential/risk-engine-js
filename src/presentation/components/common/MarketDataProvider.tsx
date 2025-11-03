@@ -22,10 +22,11 @@ import { LocalStorageRepository } from '@/infrastructure/persistence/LocalStorag
 
 // Application Layer (use cases)
 import { LoadPortfolioUseCase } from '@/application/use-cases/LoadPortfolioUseCase';
+import { LoadDemoPortfolioUseCase } from '@/application/use-cases/LoadDemoPortfolioUseCase';
 import { UpdateLoanUseCase } from '@/application/use-cases/UpdateLoanUseCase';
 import { UpdateMarketPricesUseCase } from '@/application/use-cases/UpdateMarketPricesUseCase';
 import { ImportCSVDataUseCase } from '@/application/use-cases/ImportCSVDataUseCase';
-import { LoadPortfolioRequest } from '@/application/dtos/LoadPortfolioDTOs';
+import { LoadPortfolioRequest, LoadDemoPortfolioRequest } from '@/application/dtos/LoadPortfolioDTOs';
 import { UpdateLoanRequest } from '@/application/dtos/UpdateLoanDTOs';
 import { UpdateMarketPricesRequest } from '@/application/dtos/UpdateMarketPricesDTOs';
 import { ImportCSVDataRequest } from '@/application/dtos/ImportCSVDataDTOs';
@@ -64,6 +65,7 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
 
   // Application Layer (use cases)
   const loadPortfolioUseCaseRef = useRef<LoadPortfolioUseCase | null>(null);
+  const loadDemoPortfolioUseCaseRef = useRef<LoadDemoPortfolioUseCase | null>(null);
   const updateLoanUseCaseRef = useRef<UpdateLoanUseCase | null>(null);
   const updatePricesUseCaseRef = useRef<UpdateMarketPricesUseCase | null>(null);
   const importCSVUseCaseRef = useRef<ImportCSVDataUseCase | null>(null);
@@ -88,6 +90,11 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
         repositoryRef.current
       );
     }
+    if (!loadDemoPortfolioUseCaseRef.current) {
+      loadDemoPortfolioUseCaseRef.current = new LoadDemoPortfolioUseCase(
+        repositoryRef.current
+      );
+    }
     if (!updateLoanUseCaseRef.current) {
       updateLoanUseCaseRef.current = new UpdateLoanUseCase(
         repositoryRef.current
@@ -105,12 +112,20 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
       );
     }
 
-    // Use LoadPortfolioUseCase to load or create portfolio
+    // Try to load existing portfolio
     const response = loadPortfolioUseCaseRef.current.execute(
       new LoadPortfolioRequest()
     );
+
+    // If no portfolio exists, load demo portfolio for better UX
     if (response.success && response.portfolio) {
       setPortfolio(response.portfolio);
+    } else {
+      // No portfolio found - load demo data
+      const demoResponse = loadDemoPortfolioUseCaseRef.current.execute(
+        new LoadDemoPortfolioRequest()
+      );
+      setPortfolio(demoResponse.portfolio);
     }
 
     // Get initial market snapshot
