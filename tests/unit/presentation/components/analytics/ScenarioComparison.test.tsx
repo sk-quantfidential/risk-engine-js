@@ -9,7 +9,7 @@ import { ScenarioComparison } from '@/presentation/components/analytics/Scenario
 import { Portfolio } from '@/domain/entities/Portfolio';
 import { Loan } from '@/domain/entities/Loan';
 import { AssetType, CryptoAsset } from '@/domain/value-objects/CryptoAsset';
-import { CreditRating } from '@/domain/value-objects/CreditRating';
+import { CreditRating, RatingTier } from '@/domain/value-objects/CreditRating';
 import { Money } from '@/domain/value-objects/Money';
 import { ScenarioService } from '@/infrastructure/adapters/ScenarioService';
 
@@ -18,11 +18,12 @@ describe('ScenarioComparison', () => {
     return new Loan(
       'test-loan-1',
       'Test Borrower',
-      CreditRating.A,
+      new CreditRating(RatingTier.A),
       {
-        principalUSD: Money.fromUSD(1000000),
-        annualRatePercent: 9.45,
-        tenorDays: 30,
+        principalUSD: 1000000,
+        lendingRate: 0.0945,
+        costOfCapital: 0.045,
+        tenor: 30,
         rollDate: new Date('2025-02-01'),
       },
       new CryptoAsset(AssetType.BTC, 15),
@@ -50,7 +51,7 @@ describe('ScenarioComparison', () => {
           selectedScenarios={mockSelectedScenarios}
         />
       );
-      expect(screen.getByText(/SCENARIO/i)).toBeInTheDocument();
+      expect(screen.getByText('SCENARIO COMPARISON MATRIX')).toBeInTheDocument();
     });
 
     it('should render scenario names', () => {
@@ -93,7 +94,7 @@ describe('ScenarioComparison', () => {
           selectedScenarios={[]}
         />
       );
-      expect(screen.getByText(/SCENARIO/i)).toBeInTheDocument();
+      expect(screen.getByText('SCENARIO COMPARISON MATRIX')).toBeInTheDocument();
     });
 
     it('should handle single scenario', () => {
