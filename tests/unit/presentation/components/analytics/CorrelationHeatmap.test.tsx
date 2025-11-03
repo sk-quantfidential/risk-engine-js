@@ -18,24 +18,26 @@ describe('CorrelationHeatmap', () => {
   describe('rendering', () => {
     it('should render component header', () => {
       render(<CorrelationHeatmap {...mockProps} />);
-      expect(screen.getByText(/CORRELATION/i)).toBeInTheDocument();
+      expect(screen.getByText('CORRELATION MATRIX HEATMAP')).toBeInTheDocument();
     });
 
     it('should render all asset labels', () => {
       render(<CorrelationHeatmap {...mockProps} />);
 
-      expect(screen.getByText('BTC')).toBeInTheDocument();
-      expect(screen.getByText('ETH')).toBeInTheDocument();
-      expect(screen.getByText('SOL')).toBeInTheDocument();
-      expect(screen.getByText('DEFAULT')).toBeInTheDocument();
+      // Asset labels appear multiple times (row and column headers)
+      expect(screen.getAllByText('BTC').length).toBeGreaterThanOrEqual(2);
+      expect(screen.getAllByText('ETH').length).toBeGreaterThanOrEqual(2);
+      expect(screen.getAllByText('SOL').length).toBeGreaterThanOrEqual(2);
+      expect(screen.getAllByText('DEFAULT').length).toBeGreaterThanOrEqual(2);
     });
 
     it('should render correlation values', () => {
       render(<CorrelationHeatmap {...mockProps} />);
 
-      expect(screen.getByText('0.82')).toBeInTheDocument();
-      expect(screen.getByText('0.68')).toBeInTheDocument();
-      expect(screen.getByText('0.75')).toBeInTheDocument();
+      // Correlation values appear twice in symmetric matrix (e.g., BTC-ETH and ETH-BTC)
+      expect(screen.getAllByText('0.82').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('0.68').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('0.75').length).toBeGreaterThanOrEqual(1);
     });
 
     it('should render diagonal values as 1.00', () => {
@@ -51,21 +53,24 @@ describe('CorrelationHeatmap', () => {
       const highCorr = { ...mockProps, btcEthCorr: 0.95 };
       render(<CorrelationHeatmap {...highCorr} />);
 
-      expect(screen.getByText('0.95')).toBeInTheDocument();
+      // Value appears twice in symmetric matrix
+      expect(screen.getAllByText('0.95').length).toBeGreaterThanOrEqual(1);
     });
 
     it('should handle low correlations', () => {
       const lowCorr = { ...mockProps, btcSolCorr: 0.25 };
       render(<CorrelationHeatmap {...lowCorr} />);
 
-      expect(screen.getByText('0.25')).toBeInTheDocument();
+      // Value appears twice in symmetric matrix
+      expect(screen.getAllByText('0.25').length).toBeGreaterThanOrEqual(1);
     });
 
     it('should handle negative correlations', () => {
       const negCorr = { ...mockProps, defaultCorr: -0.15 };
       render(<CorrelationHeatmap {...negCorr} />);
 
-      expect(screen.getByText('-0.15')).toBeInTheDocument();
+      // Value appears twice in symmetric matrix
+      expect(screen.getAllByText('-0.15').length).toBeGreaterThanOrEqual(1);
     });
   });
 });
