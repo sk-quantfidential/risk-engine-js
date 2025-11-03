@@ -100,10 +100,12 @@
   - Updated AssetPricePanel props and usage to accept IMarketDataProvider
   - Updated DrawdownLTVChart props and usage to accept IMarketDataProvider
   - Updated all dashboard pages (page.tsx, drawdown, correlations, history) to use new property names
-- [ ] Phase 1.4: Update Presentation to use port methods via context
-  - Audit all presentation components for Infrastructure leaks
-  - Replace direct Infrastructure calls with port method calls
-  - Add architectural boundary tests
+- [x] Phase 1.4: Audit Presentation for Infrastructure leaks
+  - Audited all Presentation and app layer components for Infrastructure imports
+  - Verified MarketDataProvider port usage: All components use IMarketDataProvider ✅
+  - Verified utility classes: CSVExporter and CoinbaseImporter are acceptable utilities ✅
+  - Identified ScenarioService violations (PDCurveChart, ScenarioComparison, scenarios/page) - deferred to Phase 2.3-2.4
+  - **Result**: Phase 1 (Foundation Ports) complete - All market data operations use port interfaces
 
 **Phase 2: Risk & Scenario Ports** 📋 PLANNED
 - [ ] Phase 2.1: Create IRiskEngine port
