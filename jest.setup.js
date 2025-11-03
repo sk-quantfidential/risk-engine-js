@@ -36,11 +36,19 @@ global.IntersectionObserver = class IntersectionObserver {
 const originalError = console.error
 beforeAll(() => {
   console.error = (...args) => {
-    if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render')
-    ) {
-      return
+    if (typeof args[0] === 'string') {
+      // Suppress React warnings
+      if (args[0].includes('Warning: ReactDOM.render')) {
+        return
+      }
+      // Suppress expected error messages from infrastructure tests
+      if (
+        args[0].includes('Failed to save loan') ||
+        args[0].includes('Failed to delete loan') ||
+        args[0].includes('Failed to load portfolio')
+      ) {
+        return
+      }
     }
     originalError.call(console, ...args)
   }
