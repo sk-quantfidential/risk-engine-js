@@ -8,7 +8,7 @@ import { describe, it, expect, jest } from '@jest/globals';
 import { LoanEditModal } from '@/presentation/components/portfolio/LoanEditModal';
 import { Loan } from '@/domain/entities/Loan';
 import { AssetType, CryptoAsset } from '@/domain/value-objects/CryptoAsset';
-import { CreditRating } from '@/domain/value-objects/CreditRating';
+import { CreditRating, RatingTier } from '@/domain/value-objects/CreditRating';
 import { Money } from '@/domain/value-objects/Money';
 
 describe('LoanEditModal', () => {
@@ -16,11 +16,12 @@ describe('LoanEditModal', () => {
     return new Loan(
       'test-loan-1',
       'Test Borrower',
-      CreditRating.A,
+      new CreditRating(RatingTier.A),
       {
-        principalUSD: Money.fromUSD(1000000),
-        annualRatePercent: 9.45,
-        tenorDays: 30,
+        principalUSD: 1000000,
+        lendingRate: 0.0945,
+        costOfCapital: 0.045,
+        tenor: 30,
         rollDate: new Date('2025-02-01'),
       },
       new CryptoAsset(AssetType.BTC, 15),
@@ -59,7 +60,6 @@ describe('LoanEditModal', () => {
       expect(screen.getByText(/BORROWER NAME/)).toBeInTheDocument();
       expect(screen.getByText(/CREDIT RATING/)).toBeInTheDocument();
       expect(screen.getByText(/PRINCIPAL/)).toBeInTheDocument();
-      expect(screen.getByText(/ANNUAL RATE/)).toBeInTheDocument();
       expect(screen.getByText(/COLLATERAL AMOUNT/)).toBeInTheDocument();
       expect(screen.getByText(/COLLATERAL TYPE/)).toBeInTheDocument();
       expect(screen.getByText(/LEVERAGE/)).toBeInTheDocument();
@@ -80,9 +80,6 @@ describe('LoanEditModal', () => {
 
       const principalInput = screen.getByDisplayValue('1000000');
       expect(principalInput).toBeInTheDocument();
-
-      const rateInput = screen.getByDisplayValue('9.45');
-      expect(rateInput).toBeInTheDocument();
     });
   });
 
@@ -120,9 +117,9 @@ describe('LoanEditModal', () => {
     it('should display all asset type options', () => {
       render(<LoanEditModal isOpen={true} loan={mockLoan} onSave={mockOnSave} onClose={mockOnClose} />);
 
-      expect(screen.getByText('Bitcoin (BTC)')).toBeInTheDocument();
-      expect(screen.getByText('Ethereum (ETH)')).toBeInTheDocument();
-      expect(screen.getByText('Solana (SOL)')).toBeInTheDocument();
+      expect(screen.getByText('BTC')).toBeInTheDocument();
+      expect(screen.getByText('ETH')).toBeInTheDocument();
+      expect(screen.getByText('SOL')).toBeInTheDocument();
     });
   });
 });
