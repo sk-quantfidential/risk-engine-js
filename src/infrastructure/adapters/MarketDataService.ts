@@ -242,6 +242,14 @@ export class MarketDataService implements IMarketDataProvider, IPriceHistoryServ
   }
 
   /**
+   * Get historical price bars for a specific window
+   * Implements IMarketDataProvider
+   */
+  getHistoryWindow(asset: AssetType, windowHours: number): PriceBar[] {
+    return this.getHistory(asset, windowHours);
+  }
+
+  /**
    * Get current prices for all assets
    * Implements IMarketDataProvider
    */
@@ -284,14 +292,15 @@ export class MarketDataService implements IMarketDataProvider, IPriceHistoryServ
 
   /**
    * Calculate historical correlation between assets
+   * Implements IMarketDataProvider
    */
   calculateHistoricalCorrelation(
     asset1: AssetType,
     asset2: AssetType,
-    hoursBack: number = 720  // 30 days default
+    windowHours: number = 720  // 30 days default
   ): number {
-    const history1 = this.getHistory(asset1, hoursBack);
-    const history2 = this.getHistory(asset2, hoursBack);
+    const history1 = this.getHistory(asset1, windowHours);
+    const history2 = this.getHistory(asset2, windowHours);
 
     if (history1.length !== history2.length) return 0;
 
@@ -359,9 +368,9 @@ export class MarketDataService implements IMarketDataProvider, IPriceHistoryServ
    * Get the maximum drawdown for an asset over its history
    * Implements IMarketDataProvider
    */
-  getMaxDrawdown(asset: AssetType): number {
-    // Use entire history (365 days default)
-    return this.calculateMaxDrawdown(asset, 365 * 24);
+  getMaxDrawdown(asset: AssetType, windowHours: number = 8760): number {
+    // Default to 1 year (8760 hours) if not specified
+    return this.calculateMaxDrawdown(asset, windowHours);
   }
 
   /**

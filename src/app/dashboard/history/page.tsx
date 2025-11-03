@@ -12,14 +12,14 @@ export default function HistoryPage() {
     if (!portfolio) return [];
 
     // Get 90 days of data, sampled every 6 hours
-    const history = marketDataService.getHistory(AssetType.BTC, 90 * 24);
+    const history = marketDataService.getHistoryWindow(AssetType.BTC, 90 * 24);
     const sampledHistory = history.filter((_, idx) => idx % 6 === 0);
 
     return sampledHistory.map(bar => {
       const prices = {
         [AssetType.BTC]: bar.close,
-        [AssetType.ETH]: marketDataService.getHistory(AssetType.ETH, 90 * 24)[Math.floor(sampledHistory.indexOf(bar) * 6)]?.close || 0,
-        [AssetType.SOL]: marketDataService.getHistory(AssetType.SOL, 90 * 24)[Math.floor(sampledHistory.indexOf(bar) * 6)]?.close || 0,
+        [AssetType.ETH]: marketDataService.getHistoryWindow(AssetType.ETH, 90 * 24)[Math.floor(sampledHistory.indexOf(bar) * 6)]?.close || 0,
+        [AssetType.SOL]: marketDataService.getHistoryWindow(AssetType.SOL, 90 * 24)[Math.floor(sampledHistory.indexOf(bar) * 6)]?.close || 0,
       };
 
       const metrics = portfolio.calculateMetrics(prices);
@@ -39,7 +39,7 @@ export default function HistoryPage() {
     return <div className="text-center text-text-secondary font-mono">Loading...</div>;
   }
 
-  const maxDrawdown = marketDataService.calculateMaxDrawdown(AssetType.BTC, 90 * 24);
+  const maxDrawdown = marketDataService.getMaxDrawdown(AssetType.BTC, 90 * 24);
 
   return (
     <div className="space-y-6">

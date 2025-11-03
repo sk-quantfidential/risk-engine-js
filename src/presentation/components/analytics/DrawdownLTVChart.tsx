@@ -14,7 +14,7 @@ interface DrawdownLTVChartProps {
 export function DrawdownLTVChart({ loan, currentPrice, marketDataService }: DrawdownLTVChartProps) {
   const chartData = useMemo(() => {
     // Get last 6 months of hourly price data
-    const history = marketDataService.getHistory(loan.collateral.type, 6 * 30 * 24);
+    const history = marketDataService.getHistoryWindow(loan.collateral.type, 6 * 30 * 24);
 
     // Calculate LTV for each price point
     return history.map(bar => {
@@ -38,8 +38,8 @@ export function DrawdownLTVChart({ loan, currentPrice, marketDataService }: Draw
   const currentCollateralValue = loan.collateral.calculateValue(currentPrice);
   const currentMetrics = loan.calculateMetrics(currentCollateralValue);
 
-  // Calculate margin event probabilities
-  const volatility = marketDataService.calculateHistoricalVolatility(loan.collateral.type, 720);
+  // Calculate margin event probabilities (720 hours = 30 days)
+  const volatility = marketDataService.calculateVolatility(loan.collateral.type, 30);
   const marginCallProb3d = loan.calculateMarginEventProbability(currentPrice, volatility, 3, 'call');
   const marginCallProb5d = loan.calculateMarginEventProbability(currentPrice, volatility, 5, 'call');
   const liquidationProb3d = loan.calculateMarginEventProbability(currentPrice, volatility, 3, 'liquidation');

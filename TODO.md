@@ -71,6 +71,50 @@
 
 ---
 
+## 🏗️ Clean Architecture Refactoring
+
+### Epic TSE-0004: Clean Architecture Ports & Boundaries
+
+**Status**: 🚧 IN PROGRESS
+**Branch**: `refactor/epic-TSE-0004-clean-architecture-ports`
+**Started**: 2025-11-04
+
+**Goal**: Fix architectural boundary violations and implement proper ports & adapters pattern throughout the codebase.
+
+**Phase 1: Foundation Ports** 🚧 IN PROGRESS
+- [x] Phase 1.1: Separate LoadDemoPortfolioUseCase for demo data
+  - Created LoadDemoPortfolioUseCase with explicit Infrastructure dependency
+  - Fixed Application → Infrastructure violation in LoadPortfolioUseCase
+  - Added comprehensive tests (10 new tests, all passing)
+  - Updated MarketDataProvider to orchestrate both use cases
+- [x] Phase 1.2: Extend IMarketDataProvider with missing analytics methods
+  - Added `calculateHistoricalCorrelation(asset1, asset2, windowHours)` to port
+  - Added `getHistoryWindow(asset, windowHours)` to port
+  - Extended `getMaxDrawdown(asset, windowHours?)` with optional parameter
+  - Updated MarketDataService to implement new port methods
+  - Fixed presentation layer to use port methods (correlations/page, history/page, DrawdownLTVChart)
+- [ ] Phase 1.3: Hide Infrastructure from MarketDataProvider context
+  - Remove concrete MarketDataService and LocalStorageRepository from context value
+  - Expose only port interfaces (IMarketDataProvider, IPortfolioRepository)
+  - Update all consuming components to use port methods only
+- [ ] Phase 1.4: Update Presentation to use port methods via context
+  - Audit all presentation components for Infrastructure leaks
+  - Replace direct Infrastructure calls with port method calls
+  - Add architectural boundary tests
+
+**Phase 2: Risk & Scenario Ports** 📋 PLANNED
+- [ ] Phase 2.1: Create IRiskEngine port
+- [ ] Phase 2.2: Wrap MonteCarloEngine as CpuRiskEngine adapter
+- [ ] Phase 2.3: Create IScenarioService port
+- [ ] Phase 2.4: Make ScenarioService implement IScenarioService
+- [ ] Phase 2.5: Add use-cases for risk operations
+- [ ] Phase 2.6: Update Presentation to use new risk use-cases
+
+**Documentation**:
+- PR documentation: `docs/prs/refactor-epic-TSE-0004-clean-architecture.md` (1200+ lines)
+
+---
+
 ## ✅ Completed Features
 
 ### Phase 1: Foundation & Architecture ✅
