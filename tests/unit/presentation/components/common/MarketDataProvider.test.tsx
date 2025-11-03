@@ -17,7 +17,10 @@ describe('MarketDataProvider', () => {
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+    jest.clearAllTimers();
     jest.useRealTimers();
   });
 
