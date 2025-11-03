@@ -107,9 +107,17 @@
   - Identified ScenarioService violations (PDCurveChart, ScenarioComparison, scenarios/page) - deferred to Phase 2.3-2.4
   - **Result**: Phase 1 (Foundation Ports) complete - All market data operations use port interfaces
 
-**Phase 2: Risk & Scenario Ports** 📋 PLANNED
-- [ ] Phase 2.1: Create IRiskEngine port
-- [ ] Phase 2.2: Wrap MonteCarloEngine as CpuRiskEngine adapter
+**Phase 2: Risk & Scenario Ports** 🚧 IN PROGRESS
+- [x] Phase 2.1: Create IRiskEngine port
+  - Created `src/application/ports/IRiskEngine.ts` with comprehensive interface
+  - Defined `ScenarioParameters`, `SimulationResult`, and `PricePathSimulation` interfaces
+  - Documented port for future GPU/WebAssembly/Cloud implementations
+  - Port methods: `simulatePortfolioLoss()`, `simulatePricePaths()`
+- [x] Phase 2.2: Wrap MonteCarloEngine as CpuRiskEngine adapter
+  - Created `src/infrastructure/adapters/CpuRiskEngine.ts` implementing IRiskEngine
+  - Wraps MonteCarloEngine internally with delegation pattern
+  - Enables dependency injection and testability via port interface
+  - TypeScript compilation verified ✅
 - [ ] Phase 2.3: Create IScenarioService port
 - [ ] Phase 2.4: Make ScenarioService implement IScenarioService
 - [ ] Phase 2.5: Add use-cases for risk operations
