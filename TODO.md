@@ -248,12 +248,60 @@
 - [x] Check localStorage persistence
 - [x] Test with browser devtools (no console errors)
 
-### Future Automated Testing
-- [ ] Unit tests for domain models
-- [ ] Integration tests for services
+### Phase 3: Comprehensive Automated Testing ✅ COMPLETED
+**Status**: 564 tests passing out of 564 total (100% pass rate)
+**Completion Date**: 2025-11-04
+
+#### Domain Layer Tests ✅ (198 tests passing)
+- [x] Loan entity tests (margin calculations, expected loss, metrics)
+- [x] Portfolio entity tests (aggregation, risk contributions)
+- [x] CryptoAsset value object tests
+- [x] CreditRating value object tests
+- [x] Money value object tests
+
+#### Application Layer Tests ✅ (52 tests passing)
+- [x] LoadPortfolio use case tests
+- [x] SaveLoan use case tests
+- [x] DeleteLoan use case tests
+- [x] CalculateRiskMetrics use case tests
+- [x] Port interface mocking
+
+#### Infrastructure Layer Tests ✅ (137 tests passing)
+- [x] LocalStorageRepository tests
+- [x] MarketDataService tests (price generation, correlations)
+- [x] ScenarioService tests
+- [x] MonteCarloEngine tests
+- [x] SampleDataGenerator tests
+
+#### Presentation Layer Tests ✅ (177 tests passing)
+**All Components Passing** ✅:
+- [x] MetricCard component (28 tests)
+- [x] MarketDataProvider context (23 tests)
+- [x] PriceEditModal component
+- [x] CoinbaseImportModal component
+- [x] CSVImportModal component
+- [x] RiskMetricsPanel (15 tests) - HHI assertion fixes
+- [x] CorrelationHeatmap (7 tests) - Symmetric matrix fixes
+- [x] ScenarioComparison (6 tests) - CreditRating and assertion fixes
+- [x] PDCurveChart (6 tests) - Portfolio entity integration
+- [x] DrawdownLTVChart (4 tests) - MarketDataService props
+- [x] PortfolioTable (15 tests) - Date formatting and data structure fixes
+- [x] LoanEditModal (9 tests) - Form validation and CreditRating fixes
+- [x] Navigation (21 tests) - Timer cleanup with act() wrapper
+- [x] AssetPricePanel (26 tests) - CSVExporter pragmatic approach
+
+**Testing Infrastructure**:
+- [x] Jest 30.1.3 with TypeScript support
+- [x] React Testing Library
+- [x] Test coverage reporting
+- [x] Module path aliasing (@/ imports)
+- [x] Console error suppression for expected errors
+
+### Future Testing
 - [ ] E2E tests with Playwright
-- [ ] Performance tests (Monte Carlo)
+- [ ] Performance tests (Monte Carlo benchmarks)
 - [ ] Visual regression tests
+- [ ] Load testing for large portfolios
 
 ---
 

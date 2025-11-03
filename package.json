@@ -1,7 +1,7 @@
 {
-  "name": "cor-prime-risk-engine",
+  "name": "crypto-loan-risk-engine",
   "version": "1.0.0",
-  "description": "Cor Prime Risk Engine - Crypto Loan Risk Management System",
+  "description": "Crypto Loan Risk Engine - Crypto Loan Risk Management System",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
