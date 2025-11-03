@@ -48,6 +48,10 @@ export class Money {
     }).format(this.amountUSD);
   }
 
+  static fromUSD(amountUSD: number): Money {
+    return new Money(amountUSD);
+  }
+
   static fromJSON(data: { amountUSD: number }): Money {
     return new Money(data.amountUSD);
   }

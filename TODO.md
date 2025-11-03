@@ -248,12 +248,61 @@
 - [x] Check localStorage persistence
 - [x] Test with browser devtools (no console errors)
 
-### Future Automated Testing
-- [ ] Unit tests for domain models
-- [ ] Integration tests for services
+### Phase 3: Comprehensive Automated Testing 🚧 IN PROGRESS
+**Status**: 449 tests passing out of 518 total (87% pass rate)
+
+#### Domain Layer Tests ✅ (198 tests passing)
+- [x] Loan entity tests (margin calculations, expected loss, metrics)
+- [x] Portfolio entity tests (aggregation, risk contributions)
+- [x] CryptoAsset value object tests
+- [x] CreditRating value object tests
+- [x] Money value object tests
+
+#### Application Layer Tests ✅ (52 tests passing)
+- [x] LoadPortfolio use case tests
+- [x] SaveLoan use case tests
+- [x] DeleteLoan use case tests
+- [x] CalculateRiskMetrics use case tests
+- [x] Port interface mocking
+
+#### Infrastructure Layer Tests ✅ (117 tests passing)
+- [x] LocalStorageRepository tests
+- [x] MarketDataService tests (price generation, correlations)
+- [x] ScenarioService tests
+- [x] MonteCarloEngine tests
+- [x] SampleDataGenerator tests
+
+#### Presentation Layer Tests 🚧 (82 tests passing, 49 failing)
+**Passing Components** ✅:
+- [x] MetricCard component (28 tests)
+- [x] MarketDataProvider context (23 tests)
+- [x] PriceEditModal component
+- [x] CoinbaseImportModal component
+- [x] CSVImportModal component
+
+**Failing Components** ⚠️ (Known Issues):
+- [ ] RiskMetricsPanel - Data structure mismatches remaining
+- [ ] CorrelationHeatmap - Some edge cases failing
+- [ ] ScenarioComparison - Complex integration tests
+- [ ] PDCurveChart - Loan test data issues
+- [ ] DrawdownLTVChart - Price history mocking
+- [ ] PortfolioTable - Sorting and formatting assertions
+- [ ] LoanEditModal - Form validation tests
+- [ ] Navigation - Timer cleanup causing test hangs
+- [ ] AssetPricePanel - CSVExporter mock not working
+
+**Testing Infrastructure**:
+- [x] Jest 30.1.3 with TypeScript support
+- [x] React Testing Library
+- [x] Test coverage reporting
+- [x] Module path aliasing (@/ imports)
+- [x] Console error suppression for expected errors
+
+### Future Testing
 - [ ] E2E tests with Playwright
-- [ ] Performance tests (Monte Carlo)
+- [ ] Performance tests (Monte Carlo benchmarks)
 - [ ] Visual regression tests
+- [ ] Load testing for large portfolios
 
 ---
 

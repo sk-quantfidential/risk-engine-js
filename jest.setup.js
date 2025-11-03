@@ -32,6 +32,10 @@ global.IntersectionObserver = class IntersectionObserver {
   unobserve() {}
 }
 
+// Mock URL.createObjectURL (required for file downloads)
+global.URL.createObjectURL = jest.fn(() => 'mock-object-url')
+global.URL.revokeObjectURL = jest.fn()
+
 // Suppress console errors during tests (optional)
 const originalError = console.error
 beforeAll(() => {
@@ -45,7 +49,8 @@ beforeAll(() => {
       if (
         args[0].includes('Failed to save loan') ||
         args[0].includes('Failed to delete loan') ||
-        args[0].includes('Failed to load portfolio')
+        args[0].includes('Failed to load portfolio') ||
+        args[0].includes('URL.createObjectURL is not a function')
       ) {
         return
       }
