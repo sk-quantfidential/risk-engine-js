@@ -21,19 +21,26 @@ const customJestConfig = {
   // Module paths
   moduleNameMapper: {
     // Handle module aliases (maps to tsconfig paths)
-    '^@/(.*)$': '<rootDir>/$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/domain/(.*)$': '<rootDir>/src/domain/$1',
+    '^@/application/(.*)$': '<rootDir>/src/application/$1',
+    '^@/infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
+    '^@/presentation/(.*)$': '<rootDir>/src/presentation/$1',
   },
 
   // Coverage configuration
   collectCoverageFrom: [
-    'app/**/*.{js,jsx,ts,tsx}',
-    'components/**/*.{js,jsx,ts,tsx}',
-    'domain/**/*.{js,jsx,ts,tsx}',
-    'infrastructure/**/*.{js,jsx,ts,tsx}',
+    'src/app/**/*.{js,jsx,ts,tsx}',
+    'src/presentation/**/*.{js,jsx,ts,tsx}',
+    'src/domain/**/*.{js,jsx,ts,tsx}',
+    'src/application/**/*.{js,jsx,ts,tsx}',
+    'src/infrastructure/**/*.{js,jsx,ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!**/.next/**',
     '!**/coverage/**',
+    '!src/app/layout.tsx',
+    '!src/app/page.tsx',
   ],
 
   // Test match patterns
