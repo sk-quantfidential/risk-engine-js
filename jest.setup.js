@@ -32,6 +32,16 @@ global.IntersectionObserver = class IntersectionObserver {
   unobserve() {}
 }
 
+// Mock ResizeObserver (required for Recharts)
+global.ResizeObserver = class ResizeObserver {
+  constructor(callback) {
+    this.callback = callback
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 // Mock URL.createObjectURL (required for file downloads)
 global.URL.createObjectURL = jest.fn(() => 'mock-object-url')
 global.URL.revokeObjectURL = jest.fn()
