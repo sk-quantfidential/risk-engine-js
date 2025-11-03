@@ -15,30 +15,10 @@
 
 import { Portfolio } from '@/domain/entities/Portfolio';
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
+import type { ScenarioParameters } from './IScenarioService';
 
-/**
- * Scenario parameters for risk simulation
- * (Imported from ScenarioService - will be refactored to IScenarioService in Phase 2.3)
- */
-export interface ScenarioParameters {
-  name: string;
-  description: string;
-  timeframe: string;
-  marketDrawdown: number;
-  volatilityMultiplier: number;
-  assetShocks: Record<AssetType, number>;
-  pdMultiplier: number;
-  lgdMultiplier: number;
-  tCopulaDOF: number;
-  defaultCorrelation: number;
-  liquidationSlippageMultiplier: number;
-  cureProbability: number;
-  correlationOverrides: {
-    BTC_ETH: number;
-    BTC_SOL: number;
-    ETH_SOL: number;
-  };
-}
+// Re-export ScenarioParameters from IScenarioService for convenience
+export type { ScenarioParameters };
 
 /**
  * Monte Carlo simulation result

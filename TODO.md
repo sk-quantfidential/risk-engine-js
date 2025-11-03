@@ -118,7 +118,13 @@
   - Wraps MonteCarloEngine internally with delegation pattern
   - Enables dependency injection and testability via port interface
   - TypeScript compilation verified ✅
-- [ ] Phase 2.3: Create IScenarioService port
+- [x] Phase 2.3: Create IScenarioService port
+  - Created `src/application/ports/IScenarioService.ts` with comprehensive interface
+  - Defined `ScenarioParameters` and `PDCurvePoint` interfaces
+  - Port methods: `getAllScenarios()`, `getScenario()`, `getScenarioIds()`, `applyScenarioPrices()`, `calculateStressedPD()`, `calculateStressedLGD()`, `generatePDCurve()`
+  - Documented port for future scenario providers (database, API, Basel III libraries)
+  - Refactored IRiskEngine to import ScenarioParameters from IScenarioService (proper dependency)
+  - TypeScript compilation verified ✅
 - [ ] Phase 2.4: Make ScenarioService implement IScenarioService
 - [ ] Phase 2.5: Add use-cases for risk operations
 - [ ] Phase 2.6: Update Presentation to use new risk use-cases
