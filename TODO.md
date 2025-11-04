@@ -133,7 +133,13 @@
   - Fixed MonteCarloEngine to import ScenarioParameters from port (not concrete service)
   - Fixed ScenarioComparison to import ScenarioParameters from port
   - TypeScript compilation verified ✅
-- [ ] Phase 2.5: Add use-cases for risk operations
+- [x] Phase 2.5: Add use-cases for risk operations
+  - Created `src/application/use-cases/GetAllScenariosUseCase.ts` - Retrieves all available scenarios
+  - Created `src/application/use-cases/GetScenarioUseCase.ts` - Retrieves specific scenario by ID
+  - Created `src/application/use-cases/SimulatePortfolioRiskUseCase.ts` - Runs Monte Carlo simulation
+  - All use-cases accept port interfaces (IScenarioService, IRiskEngine) for dependency injection
+  - Comprehensive documentation with Clean Architecture principles
+  - TypeScript compilation verified ✅
 - [ ] Phase 2.6: Update Presentation to use new risk use-cases
 
 **Documentation**:
