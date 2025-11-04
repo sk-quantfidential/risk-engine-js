@@ -2,12 +2,12 @@
 
 import React, { useMemo } from 'react';
 import { Portfolio } from '@/domain/entities/Portfolio';
-import { ScenarioService } from '@/infrastructure/adapters/ScenarioService';
+import { IScenarioService } from '@/application/ports/IScenarioService';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface PDCurveChartProps {
   portfolio: Portfolio;
-  scenarioService: ScenarioService;
+  scenarioService: IScenarioService;
   selectedScenarios: string[];
 }
 

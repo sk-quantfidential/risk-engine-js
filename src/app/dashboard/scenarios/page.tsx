@@ -3,14 +3,12 @@
 import { useMarketData } from '@/components/common/MarketDataProvider';
 import { ScenarioComparison } from '@/components/analytics/ScenarioComparison';
 import { PDCurveChart } from '@/components/analytics/PDCurveChart';
-import { ScenarioService } from '@/infrastructure/adapters/ScenarioService';
 import { useState, useMemo } from 'react';
 
 export default function ScenariosPage() {
-  const { portfolio, marketData } = useMarketData();
+  const { portfolio, marketData, scenarioService } = useMarketData();
   const [selectedScenarios, setSelectedScenarios] = useState<string[]>(['stable-growth', 'covid-crash']);
 
-  const scenarioService = useMemo(() => new ScenarioService(), []);
   const allScenarios = useMemo(() => scenarioService.getAllScenarios(), [scenarioService]);
 
   if (!portfolio || !marketData) {

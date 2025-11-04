@@ -19,10 +19,12 @@ import { AssetType } from '@/domain/value-objects/CryptoAsset';
 // Port Interfaces (Application Layer)
 import { IMarketDataProvider } from '@/application/ports/IMarketDataProvider';
 import { IPortfolioRepository } from '@/application/ports/IPortfolioRepository';
+import { IScenarioService } from '@/application/ports/IScenarioService';
 
 // Infrastructure Layer (concrete implementations - used internally only)
 import { MarketDataService } from '@/infrastructure/adapters/MarketDataService';
 import { LocalStorageRepository } from '@/infrastructure/persistence/LocalStorageRepository';
+import { ScenarioService } from '@/infrastructure/adapters/ScenarioService';
 
 // Application Layer (use cases)
 import { LoadPortfolioUseCase } from '@/application/use-cases/LoadPortfolioUseCase';
@@ -38,14 +40,15 @@ import { ImportCSVDataRequest } from '@/application/dtos/ImportCSVDataDTOs';
 /**
  * Market Data Context Value
  *
- * Clean Architecture: Exposes only port interfaces (IMarketDataProvider, IPortfolioRepository)
- * to prevent Presentation layer from depending on Infrastructure implementations.
+ * Clean Architecture: Exposes only port interfaces to prevent Presentation
+ * layer from depending on Infrastructure implementations.
  */
 interface MarketDataContextValue {
   marketData: MarketDataSnapshot | null;
   portfolio: Portfolio | null;
   marketDataProvider: IMarketDataProvider;  // Port interface (not concrete type)
   portfolioRepository: IPortfolioRepository; // Port interface (not concrete type)
+  scenarioService: IScenarioService;         // Port interface (not concrete type)
   isLive: boolean;
   toggleLive: () => void;
   refreshPortfolio: () => void;
@@ -72,6 +75,7 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
   // Infrastructure Layer (adapters)
   const marketDataServiceRef = useRef<MarketDataService | null>(null);
   const repositoryRef = useRef<LocalStorageRepository | null>(null);
+  const scenarioServiceRef = useRef<ScenarioService | null>(null);
 
   // Application Layer (use cases)
   const loadPortfolioUseCaseRef = useRef<LoadPortfolioUseCase | null>(null);
@@ -92,6 +96,9 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
     }
     if (!repositoryRef.current) {
       repositoryRef.current = new LocalStorageRepository();
+    }
+    if (!scenarioServiceRef.current) {
+      scenarioServiceRef.current = new ScenarioService();
     }
 
     // Initialize use cases (Dependency Injection)
@@ -226,6 +233,7 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
     // Expose port interfaces only (hide concrete Infrastructure types)
     marketDataProvider: marketDataServiceRef.current!,
     portfolioRepository: repositoryRef.current!,
+    scenarioService: scenarioServiceRef.current!,
     isLive,
     toggleLive,
     refreshPortfolio,

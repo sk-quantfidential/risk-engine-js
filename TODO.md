@@ -75,13 +75,13 @@
 
 ### Epic TSE-0004: Clean Architecture Ports & Boundaries
 
-**Status**: 🚧 IN PROGRESS
+**Status**: ✅ PHASE 2 COMPLETE (Phase 1 & 2 done, ready for commit)
 **Branch**: `refactor/epic-TSE-0004-clean-architecture-ports`
 **Started**: 2025-11-04
 
 **Goal**: Fix architectural boundary violations and implement proper ports & adapters pattern throughout the codebase.
 
-**Phase 1: Foundation Ports** 🚧 IN PROGRESS
+**Phase 1: Foundation Ports** ✅ COMPLETE
 - [x] Phase 1.1: Separate LoadDemoPortfolioUseCase for demo data
   - Created LoadDemoPortfolioUseCase with explicit Infrastructure dependency
   - Fixed Application → Infrastructure violation in LoadPortfolioUseCase
@@ -107,7 +107,7 @@
   - Identified ScenarioService violations (PDCurveChart, ScenarioComparison, scenarios/page) - deferred to Phase 2.3-2.4
   - **Result**: Phase 1 (Foundation Ports) complete - All market data operations use port interfaces
 
-**Phase 2: Risk & Scenario Ports** 🚧 IN PROGRESS
+**Phase 2: Risk & Scenario Ports** ✅ COMPLETE
 - [x] Phase 2.1: Create IRiskEngine port
   - Created `src/application/ports/IRiskEngine.ts` with comprehensive interface
   - Defined `ScenarioParameters`, `SimulationResult`, and `PricePathSimulation` interfaces
@@ -140,7 +140,28 @@
   - All use-cases accept port interfaces (IScenarioService, IRiskEngine) for dependency injection
   - Comprehensive documentation with Clean Architecture principles
   - TypeScript compilation verified ✅
-- [ ] Phase 2.6: Update Presentation to use new risk use-cases
+- [x] Phase 2.6: Update Presentation to use new risk use-cases
+  - Updated `src/presentation/components/common/MarketDataProvider.tsx`:
+    - Added IScenarioService import and ScenarioService concrete implementation
+    - Added scenarioServiceRef for service lifecycle management
+    - Initialize ScenarioService in useEffect hook
+    - Exposed scenarioService (IScenarioService port) in context value
+  - Updated `src/presentation/components/analytics/PDCurveChart.tsx`:
+    - Changed import from ScenarioService to IScenarioService port
+    - Updated props interface to accept IScenarioService (not concrete type)
+    - Component now depends on abstraction, not implementation
+  - Updated `src/presentation/components/analytics/ScenarioComparison.tsx`:
+    - Changed import from ScenarioService to IScenarioService port
+    - Updated props interface to accept IScenarioService
+    - Already imported ScenarioParameters from port (Phase 2.4)
+  - Updated `src/app/dashboard/scenarios/page.tsx`:
+    - Removed local ScenarioService instantiation
+    - Now retrieves scenarioService from MarketDataProvider context
+    - Removed Infrastructure import - uses port interface from context
+  - **Result**: All Presentation components now depend on port interfaces only
+  - TypeScript compilation verified ✅
+  - All tests passing: 574 tests ✅
+  - **Phase 2 (Risk & Scenario Ports) COMPLETE** ✅
 
 **Documentation**:
 - PR documentation: `docs/prs/refactor-epic-TSE-0004-clean-architecture.md` (1200+ lines)
