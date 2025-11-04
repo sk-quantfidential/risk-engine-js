@@ -125,7 +125,14 @@
   - Documented port for future scenario providers (database, API, Basel III libraries)
   - Refactored IRiskEngine to import ScenarioParameters from IScenarioService (proper dependency)
   - TypeScript compilation verified ✅
-- [ ] Phase 2.4: Make ScenarioService implement IScenarioService
+- [x] Phase 2.4: Make ScenarioService implement IScenarioService
+  - Updated `src/infrastructure/adapters/ScenarioService.ts` to implement IScenarioService
+  - Removed duplicate ScenarioParameters interface (now imported from port)
+  - Updated return type of generatePDCurve to use PDCurvePoint[]
+  - Added Clean Architecture documentation header
+  - Fixed MonteCarloEngine to import ScenarioParameters from port (not concrete service)
+  - Fixed ScenarioComparison to import ScenarioParameters from port
+  - TypeScript compilation verified ✅
 - [ ] Phase 2.5: Add use-cases for risk operations
 - [ ] Phase 2.6: Update Presentation to use new risk use-cases
 
