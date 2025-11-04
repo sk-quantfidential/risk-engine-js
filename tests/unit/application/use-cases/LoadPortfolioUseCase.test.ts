@@ -136,39 +136,42 @@ describe('LoadPortfolioUseCase', () => {
       expect(response.success).toBe(true);
     });
 
-    it('should create sample portfolio when none exist', () => {
+    it('should return null when no portfolio exists', () => {
       mockRepository.findAll.mockReturnValue([]);
 
       const request = new LoadPortfolioRequest();
       const response = useCase.execute(request);
 
       expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
-      expect(mockRepository.save).toHaveBeenCalledTimes(1);
-      expect(response.portfolio).not.toBeNull();
-      expect(response.success).toBe(true);
-      expect(response.wasCreated).toBe(true);
+      expect(mockRepository.save).not.toHaveBeenCalled();
+      expect(response.portfolio).toBeNull();
+      expect(response.success).toBe(false);
+      expect(response.wasCreated).toBe(false);
     });
 
-    it('should save created portfolio to repository', () => {
+    it('should not auto-create portfolio (separation of concerns)', () => {
       mockRepository.findAll.mockReturnValue([]);
 
       const request = new LoadPortfolioRequest();
       const response = useCase.execute(request);
 
-      expect(mockRepository.save).toHaveBeenCalledTimes(1);
-      const savedPortfolio = (mockRepository.save as jest.Mock).mock.calls[0][0];
-      expect(savedPortfolio).toBe(response.portfolio);
+      // LoadPortfolioUseCase does NOT auto-create portfolios
+      // Demo data creation is handled by LoadDemoPortfolioUseCase
+      expect(mockRepository.save).not.toHaveBeenCalled();
+      expect(response.portfolio).toBeNull();
     });
 
-    it('should create portfolio with sample data', () => {
+    it('should delegate demo portfolio creation to LoadDemoPortfolioUseCase', () => {
+      // This test documents the architectural decision:
+      // LoadPortfolioUseCase is for loading existing portfolios only
+      // LoadDemoPortfolioUseCase is for demo/sample data generation
+      // The Presentation layer (MarketDataProvider) orchestrates both
       mockRepository.findAll.mockReturnValue([]);
 
-      const request = new LoadPortfolioRequest();
-      const response = useCase.execute(request);
+      const response = useCase.execute(new LoadPortfolioRequest());
 
-      // Sample portfolio should have loans
-      expect(response.portfolio!.loans.length).toBeGreaterThan(0);
-      expect(response.portfolio!.riskCapitalUSD).toBeGreaterThan(0);
+      expect(response.portfolio).toBeNull();
+      // Caller (Presentation) will check for null and use LoadDemoPortfolioUseCase
     });
   });
 
@@ -205,12 +208,14 @@ describe('LoadPortfolioUseCase', () => {
       expect(response.portfolio).toBeNull();
     });
 
-    it('should indicate wasCreated when new portfolio generated', () => {
+    it('should never indicate wasCreated (LoadPortfolioUseCase does not create)', () => {
+      // LoadPortfolioUseCase never creates portfolios, so wasCreated is always false
       mockRepository.findAll.mockReturnValue([]);
 
       const response = useCase.execute(new LoadPortfolioRequest());
 
-      expect(response.wasCreated).toBe(true);
+      expect(response.wasCreated).toBe(false);
+      expect(response.portfolio).toBeNull();
     });
 
     it('should not indicate wasCreated when existing portfolio loaded', () => {

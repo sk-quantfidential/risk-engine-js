@@ -1,43 +1,21 @@
 /**
  * Scenario Service
  * Defines realistic market scenarios for stress testing
+ *
+ * Clean Architecture: Infrastructure Layer implementation of IScenarioService port.
+ * This concrete implementation provides hardcoded scenario definitions.
+ *
+ * Future implementations could source scenarios from:
+ * - Database tables
+ * - External APIs (e.g., Bloomberg, Reuters)
+ * - Basel III / CCAR stress testing libraries
+ * - User-defined custom scenarios
  */
 
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
+import { IScenarioService, ScenarioParameters, PDCurvePoint } from '@/application/ports/IScenarioService';
 
-export interface ScenarioParameters {
-  name: string;
-  description: string;
-  timeframe: string;
-
-  // Market stress parameters
-  marketDrawdown: number;  // Overall market stress level (0 to 1)
-  volatilityMultiplier: number;  // Multiply base volatilities
-
-  // Asset-specific shocks
-  assetShocks: Record<AssetType, number>;  // Price change factors (e.g., 0.5 = -50%)
-
-  // Correlation adjustments
-  correlationOverrides: {
-    BTC_ETH: number;
-    BTC_SOL: number;
-    ETH_SOL: number;
-  };
-
-  // Credit risk adjustments
-  pdMultiplier: number;  // Multiply probability of default
-  lgdMultiplier: number;  // Multiply loss given default
-
-  // T-copula parameters for correlated defaults
-  tCopulaDOF: number;  // Degrees of freedom (lower = fatter tails)
-  defaultCorrelation: number;  // Correlation of default events
-
-  // Liquidity parameters
-  liquidationSlippageMultiplier: number;  // Multiply base slippage
-  cureProbability: number;  // Probability borrower cures margin call (0-1)
-}
-
-export class ScenarioService {
+export class ScenarioService implements IScenarioService {
   private scenarios: Map<string, ScenarioParameters> = new Map();
 
   constructor() {
@@ -233,8 +211,8 @@ export class ScenarioService {
     leverage: number,
     scenario: ScenarioParameters,
     maxDays: number = 365
-  ): Array<{ days: number; pd: number }> {
-    const curve: Array<{ days: number; pd: number }> = [];
+  ): PDCurvePoint[] {
+    const curve: PDCurvePoint[] = [];
     const horizons = [1, 3, 5, 7, 14, 30, 60, 90, 180, 365].filter(d => d <= maxDays);
 
     for (const days of horizons) {

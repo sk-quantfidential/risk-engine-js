@@ -2,13 +2,13 @@
 
 import React, { useMemo } from 'react';
 import { Portfolio } from '@/domain/entities/Portfolio';
-import { ScenarioService, ScenarioParameters } from '@/infrastructure/adapters/ScenarioService';
+import { IScenarioService, ScenarioParameters } from '@/application/ports/IScenarioService';
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
 
 interface ScenarioComparisonProps {
   portfolio: Portfolio;
   currentPrices: Record<AssetType, number>;
-  scenarioService: ScenarioService;
+  scenarioService: IScenarioService;
   selectedScenarios: string[];
 }
 

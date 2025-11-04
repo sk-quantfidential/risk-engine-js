@@ -68,7 +68,29 @@ export interface IMarketDataProvider {
   /**
    * Get the maximum drawdown for an asset over its history
    * @param asset The asset type
+   * @param windowHours Optional window in hours (default: 8760 = 1 year)
    * @returns Maximum drawdown as a percentage (e.g., 0.65 for 65% drawdown)
    */
-  getMaxDrawdown(asset: AssetType): number;
+  getMaxDrawdown(asset: AssetType, windowHours?: number): number;
+
+  /**
+   * Get historical price bars for a specific window
+   * @param asset The asset type to get history for
+   * @param windowHours Number of hours of history to return (from most recent backwards)
+   * @returns Array of price bars (OHLCV data) for the specified window
+   */
+  getHistoryWindow(asset: AssetType, windowHours: number): PriceBar[];
+
+  /**
+   * Calculate historical correlation between two assets
+   * @param asset1 First asset
+   * @param asset2 Second asset
+   * @param windowHours Number of hours to calculate over (default: 720 = 30 days)
+   * @returns Pearson correlation coefficient (-1 to 1)
+   */
+  calculateHistoricalCorrelation(
+    asset1: AssetType,
+    asset2: AssetType,
+    windowHours?: number
+  ): number;
 }

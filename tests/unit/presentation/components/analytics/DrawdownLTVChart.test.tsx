@@ -32,24 +32,24 @@ describe('DrawdownLTVChart', () => {
   };
 
   const mockLoan = createTestLoan();
-  const mockMarketDataService = new MarketDataService();
+  const mockMarketDataProvider = new MarketDataService();
   const mockCurrentPrice = 95000;
 
   describe('rendering', () => {
     it('should render chart title', () => {
-      render(<DrawdownLTVChart loan={mockLoan} currentPrice={mockCurrentPrice} marketDataService={mockMarketDataService} />);
+      render(<DrawdownLTVChart loan={mockLoan} currentPrice={mockCurrentPrice} marketDataProvider={mockMarketDataProvider} />);
       expect(screen.getByText(/LTV TIMELINE/i)).toBeInTheDocument();
     });
 
     it('should render collateral information', () => {
-      const { container } = render(<DrawdownLTVChart loan={mockLoan} currentPrice={mockCurrentPrice} marketDataService={mockMarketDataService} />);
+      const { container } = render(<DrawdownLTVChart loan={mockLoan} currentPrice={mockCurrentPrice} marketDataProvider={mockMarketDataProvider} />);
       // Component should display collateral-related metrics
       expect(screen.getByText('Collateral Value')).toBeInTheDocument();
       expect(screen.getByText('Current LTV')).toBeInTheDocument();
     });
 
     it('should render margin probability information', () => {
-      render(<DrawdownLTVChart loan={mockLoan} currentPrice={mockCurrentPrice} marketDataService={mockMarketDataService} />);
+      render(<DrawdownLTVChart loan={mockLoan} currentPrice={mockCurrentPrice} marketDataProvider={mockMarketDataProvider} />);
 
       // Should show margin event probability labels (multiple instances)
       expect(screen.getByText('Margin Call (3d/5d)')).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('DrawdownLTVChart', () => {
         new Date('2025-01-01')
       );
 
-      render(<DrawdownLTVChart loan={highLTVLoan} currentPrice={mockCurrentPrice} marketDataService={mockMarketDataService} />);
+      render(<DrawdownLTVChart loan={highLTVLoan} currentPrice={mockCurrentPrice} marketDataProvider={mockMarketDataProvider} />);
       // Component should render chart title regardless of loan LTV
       expect(screen.getByText(/LTV TIMELINE/i)).toBeInTheDocument();
     });

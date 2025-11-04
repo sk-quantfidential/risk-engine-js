@@ -7,7 +7,7 @@ import { AssetPricePanel } from '@/components/portfolio/AssetPricePanel';
 import { RiskMetricsPanel } from '@/components/portfolio/RiskMetricsPanel';
 
 export default function DashboardPage() {
-  const { marketData, portfolio, marketDataService, isLive, toggleLive, updateLoan, updatePrices, reloadWithCSV } = useMarketData();
+  const { marketData, portfolio, marketDataProvider, isLive, toggleLive, updateLoan, updatePrices, reloadWithCSV } = useMarketData();
 
   if (!marketData || !portfolio) {
     return (
@@ -53,7 +53,7 @@ export default function DashboardPage() {
         isLive={isLive}
         onPriceUpdate={updatePrices}
         onCSVImport={reloadWithCSV}
-        marketDataService={marketDataService}
+        marketDataProvider={marketDataProvider}
       />
 
       {/* Key Metrics Grid */}

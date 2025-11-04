@@ -49,8 +49,8 @@ describe('MarketDataProvider', () => {
       expect(result.current).toBeDefined();
       expect(result.current.marketData).toBeDefined();
       expect(result.current.portfolio).toBeDefined();
-      expect(result.current.marketDataService).toBeDefined();
-      expect(result.current.repository).toBeDefined();
+      expect(result.current.marketDataProvider).toBeDefined();
+      expect(result.current.portfolioRepository).toBeDefined();
     });
   });
 
@@ -101,8 +101,8 @@ describe('MarketDataProvider', () => {
         wrapper: MarketDataProvider,
       });
 
-      expect(result.current.marketDataService).toBeDefined();
-      expect(result.current.marketDataService.getCurrentPrices).toBeDefined();
+      expect(result.current.marketDataProvider).toBeDefined();
+      expect(result.current.marketDataProvider.getCurrentPrices).toBeDefined();
     });
 
     it('should provide repository instance', () => {
@@ -110,8 +110,8 @@ describe('MarketDataProvider', () => {
         wrapper: MarketDataProvider,
       });
 
-      expect(result.current.repository).toBeDefined();
-      expect(result.current.repository.save).toBeDefined();
+      expect(result.current.portfolioRepository).toBeDefined();
+      expect(result.current.portfolioRepository.save).toBeDefined();
     });
   });
 
@@ -351,8 +351,8 @@ describe('MarketDataProvider', () => {
 
       expect(result.current).toHaveProperty('marketData');
       expect(result.current).toHaveProperty('portfolio');
-      expect(result.current).toHaveProperty('marketDataService');
-      expect(result.current).toHaveProperty('repository');
+      expect(result.current).toHaveProperty('marketDataProvider');
+      expect(result.current).toHaveProperty('portfolioRepository');
       expect(result.current).toHaveProperty('isLive');
       expect(result.current).toHaveProperty('toggleLive');
       expect(result.current).toHaveProperty('refreshPortfolio');
