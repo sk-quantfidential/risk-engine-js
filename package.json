@@ -1,7 +1,7 @@
 {
-  "name": "cor-prime-risk-engine",
+  "name": "crypto-loan-risk-engine",
   "version": "1.0.0",
-  "description": "Cor Prime Risk Engine - Crypto Loan Risk Management System",
+  "description": "Crypto Loan Risk Engine - Crypto Loan Risk Management System",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -19,8 +19,8 @@
     "secrets:install-hook": "sh scripts/install-gitleaks-hook.sh"
   },
   "dependencies": {
-    "@tailwindcss/postcss": "^4.1.13",
-    "@types/node": "^24.9.2",
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/node": "^24.10.0",
     "@types/react": "^19.1.15",
     "@types/react-dom": "^19.2.2",
     "autoprefixer": "^10.4.21",
@@ -30,7 +30,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.2.0",
     "recharts": "^3.3.0",
-    "tailwindcss": "^4.1.16",
+    "tailwindcss": "^4.1.17",
     "typescript": "^5.9.2"
   },
   "devDependencies": {

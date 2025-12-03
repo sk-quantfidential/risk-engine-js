@@ -32,15 +32,38 @@ global.IntersectionObserver = class IntersectionObserver {
   unobserve() {}
 }
 
+// Mock ResizeObserver (required for Recharts)
+global.ResizeObserver = class ResizeObserver {
+  constructor(callback) {
+    this.callback = callback
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+// Mock URL.createObjectURL (required for file downloads)
+global.URL.createObjectURL = jest.fn(() => 'mock-object-url')
+global.URL.revokeObjectURL = jest.fn()
+
 // Suppress console errors during tests (optional)
 const originalError = console.error
 beforeAll(() => {
   console.error = (...args) => {
-    if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render')
-    ) {
-      return
+    if (typeof args[0] === 'string') {
+      // Suppress React warnings
+      if (args[0].includes('Warning: ReactDOM.render')) {
+        return
+      }
+      // Suppress expected error messages from infrastructure tests
+      if (
+        args[0].includes('Failed to save loan') ||
+        args[0].includes('Failed to delete loan') ||
+        args[0].includes('Failed to load portfolio') ||
+        args[0].includes('URL.createObjectURL is not a function')
+      ) {
+        return
+      }
     }
     originalError.call(console, ...args)
   }
