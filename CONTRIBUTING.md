@@ -1,6 +1,6 @@
-# Contributing to Cor Prime Risk Engine
+# Contributing to Crypto Loan Risk Engine
 
-Thank you for your interest in contributing to the Cor Prime Risk Engine!
+Thank you for your interest in contributing to the Crypto Loan Risk Engine!
 
 ## Development Workflow
 
