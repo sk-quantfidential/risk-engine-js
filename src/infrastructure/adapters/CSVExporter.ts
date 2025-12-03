@@ -1,11 +1,13 @@
 /**
  * CSV Exporter Utility
  * Exports synthetic price data to CSV format for reference
+ *
+ * Clean Architecture: Depends on port interface (IMarketDataProvider)
+ * instead of concrete Infrastructure implementation.
  */
 
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
-import { PriceBar } from '@/application/ports/IMarketDataProvider';
-import { MarketDataService } from './MarketDataService';
+import { PriceBar, IMarketDataProvider } from '@/application/ports/IMarketDataProvider';
 
 export class CSVExporter {
   static exportToCSV(asset: AssetType, history: PriceBar[]): string {
@@ -35,9 +37,9 @@ export class CSVExporter {
     document.body.removeChild(link);
   }
 
-  static exportAllAssets(marketDataService: MarketDataService): void {
+  static exportAllAssets(marketDataProvider: IMarketDataProvider): void {
     for (const asset of Object.values(AssetType)) {
-      const history = marketDataService.getHistory(asset);
+      const history = marketDataProvider.getPriceHistory(asset);
       const csv = this.exportToCSV(asset, history);
       this.downloadCSV(asset, csv);
     }

@@ -2,19 +2,19 @@
 
 import React, { useMemo } from 'react';
 import { Loan } from '@/domain/entities/Loan';
-import { MarketDataService } from '@/infrastructure/adapters/MarketDataService';
+import { IMarketDataProvider } from '@/application/ports/IMarketDataProvider';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, Area, ComposedChart } from 'recharts';
 
 interface DrawdownLTVChartProps {
   loan: Loan;
   currentPrice: number;
-  marketDataService: MarketDataService;
+  marketDataProvider: IMarketDataProvider;  // Port interface instead of concrete type
 }
 
-export function DrawdownLTVChart({ loan, currentPrice, marketDataService }: DrawdownLTVChartProps) {
+export function DrawdownLTVChart({ loan, currentPrice, marketDataProvider }: DrawdownLTVChartProps) {
   const chartData = useMemo(() => {
     // Get last 6 months of hourly price data
-    const history = marketDataService.getHistory(loan.collateral.type, 6 * 30 * 24);
+    const history = marketDataProvider.getHistoryWindow(loan.collateral.type, 6 * 30 * 24);
 
     // Calculate LTV for each price point
     return history.map(bar => {
@@ -32,14 +32,14 @@ export function DrawdownLTVChart({ loan, currentPrice, marketDataService }: Draw
         marginStatus,
       };
     });
-  }, [loan, marketDataService]);
+  }, [loan, marketDataProvider]);
 
   const marginPolicy = loan.collateral.marginPolicy;
   const currentCollateralValue = loan.collateral.calculateValue(currentPrice);
   const currentMetrics = loan.calculateMetrics(currentCollateralValue);
 
-  // Calculate margin event probabilities
-  const volatility = marketDataService.calculateHistoricalVolatility(loan.collateral.type, 720);
+  // Calculate margin event probabilities (720 hours = 30 days)
+  const volatility = marketDataProvider.calculateVolatility(loan.collateral.type, 30);
   const marginCallProb3d = loan.calculateMarginEventProbability(currentPrice, volatility, 3, 'call');
   const marginCallProb5d = loan.calculateMarginEventProbability(currentPrice, volatility, 5, 'call');
   const liquidationProb3d = loan.calculateMarginEventProbability(currentPrice, volatility, 3, 'liquidation');

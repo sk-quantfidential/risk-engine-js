@@ -6,7 +6,7 @@
 import { Portfolio } from '@/domain/entities/Portfolio';
 import { Loan } from '@/domain/entities/Loan';
 import { AssetType } from '@/domain/value-objects/CryptoAsset';
-import { ScenarioParameters } from './ScenarioService';
+import { ScenarioParameters } from '@/application/ports/IScenarioService';
 
 export interface SimulationResult {
   scenarioId: string;
